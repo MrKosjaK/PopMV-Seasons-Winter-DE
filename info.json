@@ -1,0 +1,26 @@
+{
+  "Title": "The Seasons: Winter",
+  "Description": "A collection of independent levels themed around the winter season.",
+  "Credits": "Divinity, MrKosjaK, Impboy",
+  "Packer": "Lovenji / MrKosjaK",
+  "Download": "http://thebeginning.uk/",
+  "Youtube": [],
+  "Images": [
+	"SeaWin1",
+		"SeaWin2",
+			"SeaWin3",
+				"SeaWin4",
+					"SeaWin5",
+						"SeaWin6"
+  ],
+  "Difficulty": 0,
+  "Version": "DE 1.0",
+  "ReleaseDate": "2020",
+  "Levels": 12,
+  "Lua": true,
+  "SoundEngine": false,
+  "Future1": -1,
+  "Future2": -1,
+  "Future3": ""
+}
+

@@ -1,0 +1,138 @@
+#
+#		This file defines smoke offsets for non-blue buildings
+#
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=					
+#		Building  Orient  Xoffset Yoffset Zoffset
+#		 (0-29)   (0-3)
+#					
+#
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=					
+
+SMOKE	  0			0		11		-10		-26		# Red Drum Tower Orient 0
+SMOKE	  0			1		-15		-10		-5		# Red Drum Tower Orient 1
+SMOKE	  0			2		0		-10		15		# Red Drum Tower Orient 2
+SMOKE	  0			3		25		-10		5		# Red Drum Tower Orient 3
+SMOKE	  1			0		-12		-12		-50		# Yellow Drum Tower Orient 0
+SMOKE	  1			1		-45		-12		0		# Yellow Drum Tower Orient 1
+SMOKE	  1			2		0		-12		50		# Yellow Drum Tower Orient 2
+SMOKE	  1			3		60		-12		0		# Yellow Drum Tower Orient 3
+SMOKE	  2			0		0		5		0		# Green Drum Tower Orient 0
+SMOKE	  2			1		0		5		0		# Green Drum Tower Orient 1
+SMOKE	  2			2		0		5		0		# Green Drum Tower Orient 2
+SMOKE	  2			3		0		5		0		# Green Drum Tower Orient 3
+SMOKE	  3			0		0		-27		-5		# Red L Shape Level 1 Orient 0
+SMOKE	  3			1		0		-27		0		# Red L Shape Level 1 Orient 1
+SMOKE	  3			2		0		-27		0		# Red L Shape Level 1 Orient 2
+SMOKE	  3			3		0		-27		0		# Red L Shape Level 1 Orient 3
+SMOKE	  4			0		-2		-27		-2		# Red L Shape Level 2 Orient 0
+SMOKE	  4			1		0		-27		0		# Red L Shape Level 2 Orient 1
+SMOKE	  4			2		0		-27		0		# Red L Shape Level 2 Orient 2
+SMOKE	  4			3		0		-27		0		# Red L Shape Level 2 Orient 3
+SMOKE	  5			0		0		-25		0		# Red L Shape Level 3 Orient 0
+SMOKE	  5			1		0		-25		0		# Red L Shape Level 3 Orient 1
+SMOKE	  5			2		0		-25		0		# Red L Shape Level 3 Orient 2
+SMOKE	  5			3		0		-25		0		# Red L Shape Level 3 Orient 3
+SMOKE	  6			0		0		-32		0		# Yellow L Shape Level 1 Orient 0
+SMOKE	  6			1		0		-32		0		# Yellow L Shape Level 1 Orient 1
+SMOKE	  6			2		0		-32		0		# Yellow L Shape Level 1 Orient 2
+SMOKE	  6			3		0		-32		0		# Yellow L Shape Level 1 Orient 3
+SMOKE	  7			0		0		-30		0		# Yellow L Shape Level 2 Orient 0
+SMOKE	  7			1		0		-30		0		# Yellow L Shape Level 2 Orient 1
+SMOKE	  7			2		0		-30		0		# Yellow L Shape Level 2 Orient 2
+SMOKE	  7			3		0		-30		0		# Yellow L Shape Level 2 Orient 3
+SMOKE	  8			0		0		-30		0		# Yellow L Shape Level 3 Orient 0
+SMOKE	  8			1		0		-30		0		# Yellow L Shape Level 3 Orient 1
+SMOKE	  8			2		0		-30		0		# Yellow L Shape Level 3 Orient 2
+SMOKE	  8			3		0		-30		0		# Yellow L Shape Level 3 Orient 3
+SMOKE	  9			0		-2		-2		-2		# Green L Shape Level 1 Orient 0
+SMOKE	  9			1		-2		-2		-2		# Green L Shape Level 1 Orient 1
+SMOKE	  9			2		0		-2		5		# Green L Shape Level 1 Orient 2
+SMOKE	  9			3		2		-2		-2		# Green L Shape Level 1 Orient 3
+SMOKE	  10		0		-1		-2		-2		# Green L Shape Level 2 Orient 0
+SMOKE	  10		1		-2		-2		-2		# Green L Shape Level 2 Orient 1
+SMOKE	  10		2		0		-2		2		# Green L Shape Level 2 Orient 2
+SMOKE	  10		3		0		-2		-2		# Green L Shape Level 2 Orient 3
+SMOKE	  11		0		0		0		0		# Green L Shape Level 3 Orient 0
+SMOKE	  11		1		0		0		0		# Green L Shape Level 3 Orient 1
+SMOKE	  11		2		0		0		0		# Green L Shape Level 3 Orient 2
+SMOKE	  11		3		0		0		0		# Green L Shape Level 3 Orient 3
+SMOKE	  12		0		0		-35		0		# Red Tower Shape Level 1 Orient 0
+SMOKE	  12		1		-2		-35		-2		# Red Tower Shape Level 1 Orient 1
+SMOKE	  12		2		-1		-35		0		# Red Tower Shape Level 1 Orient 2
+SMOKE	  12		3		0		-35		0		# Red Tower Shape Level 1 Orient 3
+SMOKE	  13		0		-2		-16		5		# Red Tower Shape Level 2 Orient 0
+SMOKE	  13		1		0		-16		0		# Red Tower Shape Level 2 Orient 1
+SMOKE	  13		2		1		-16		0		# Red Tower Shape Level 2 Orient 2
+SMOKE	  13		3		0		-16		-1		# Red Tower Shape Level 2 Orient 3
+SMOKE	  14		0		0		-30		0		# Red Tower Shape Level 3 Orient 0
+SMOKE	  14		1		0		-30		0		# Red Tower Shape Level 3 Orient 1
+SMOKE	  14		2		0		-30		0		# Red Tower Shape Level 3 Orient 2
+SMOKE	  14		3		0		-30		0		# Red Tower Shape Level 3 Orient 3
+SMOKE	  15		0		0		-16		2		# Yellow Tower Shape Level 1 Orient 0
+SMOKE	  15		1		0		-16		0		# Yellow Tower Shape Level 1 Orient 1
+SMOKE	  15		2		0		-16		2		# Yellow Tower Shape Level 1 Orient 2
+SMOKE	  15		3		0		-16		0		# Yellow Tower Shape Level 1 Orient 3
+SMOKE	  16		0		-2		-16		1		# Yellow Tower Shape Level 2 Orient 0
+SMOKE	  16		1		0		-16		0		# Yellow Tower Shape Level 2 Orient 1
+SMOKE	  16		2		2		-16		2		# Yellow Tower Shape Level 2 Orient 2
+SMOKE	  16		3		0		-16		-2		# Yellow Tower Shape Level 2 Orient 3
+SMOKE	  17		0		0		-23		0		# Yellow Tower Shape Level 3 Orient 0
+SMOKE	  17		1		0		-23		0		# Yellow Tower Shape Level 3 Orient 1
+SMOKE	  17		2		0		-23		0		# Yellow Tower Shape Level 3 Orient 2
+SMOKE	  17		3		0		-23		0		# Yellow Tower Shape Level 3 Orient 3
+SMOKE	  18		0		0		-6		0		# Green Tower Shape Level 1 Orient 0
+SMOKE	  18		1		0		-6		0		# Green Tower Shape Level 1 Orient 1
+SMOKE	  18		2		0		-6		7		# Green Tower Shape Level 1 Orient 2
+SMOKE	  18		3		3		-6		0		# Green Tower Shape Level 1 Orient 3
+SMOKE	  19		0		-2		0		0		# Green Tower Shape Level 2 Orient 0
+SMOKE	  19		1		0		0		2		# Green Tower Shape Level 2 Orient 1
+SMOKE	  19		2		0		0		4		# Green Tower Shape Level 2 Orient 2
+SMOKE	  19		3		0		0		-2		# Green Tower Shape Level 2 Orient 3
+SMOKE	  20		0		0		-7		0		# Green Tower Shape Level 3 Orient 0
+SMOKE	  20		1		0		-7		0		# Green Tower Shape Level 3 Orient 1
+SMOKE	  20		2		0		-7		0		# Green Tower Shape Level 3 Orient 2
+SMOKE	  20		3		0		-7		0		# Green Tower Shape Level 3 Orient 3
+SMOKE	  21		0		0		13		10		# Red Wide Shape Level 1 Orient 0
+SMOKE	  21		1		10		13		-2		# Red Wide Shape Level 1 Orient 1
+SMOKE	  21		2		-1		13		-10		# Red Wide Shape Level 1 Orient 2
+SMOKE	  21		3		-10		13		2		# Red Wide Shape Level 1 Orient 3
+SMOKE	  22		0		0		14		10		# Red Wide Shape Level 2 Orient 0
+SMOKE	  22		1		10		14		-5		# Red Wide Shape Level 2 Orient 1
+SMOKE	  22		2		-5		14		-10		# Red Wide Shape Level 2 Orient 2
+SMOKE	  22		3		-10		14		0		# Red Wide Shape Level 2 Orient 3
+SMOKE	  23		0		0		14		10		# Red Wide Shape Level 3 Orient 0
+SMOKE	  23		1		10		14		0		# Red Wide Shape Level 3 Orient 1
+SMOKE	  23		2		0		14		-10		# Red Wide Shape Level 3 Orient 2
+SMOKE	  23		3		-10		14		5		# Red Wide Shape Level 3 Orient 3
+SMOKE	  24		0		0		0		0		# Yellow Wide Shape Level 1 Orient 0
+SMOKE	  24		1		0		0		0		# Yellow Wide Shape Level 1 Orient 1
+SMOKE	  24		2		0		0		0		# Yellow Wide Shape Level 1 Orient 2
+SMOKE	  24		3		0		0		0		# Yellow Wide Shape Level 1 Orient 3
+SMOKE	  25		0		0		0		0		# Yellow Wide Shape Level 2 Orient 0
+SMOKE	  25		1		0		0		0		# Yellow Wide Shape Level 2 Orient 1
+SMOKE	  25		2		0		0		0		# Yellow Wide Shape Level 2 Orient 2
+SMOKE	  25		3		0		0		0		# Yellow Wide Shape Level 2 Orient 3
+SMOKE	  26		0		0		0		0		# Yellow Wide Shape Level 3 Orient 0
+SMOKE	  26		1		0		0		0		# Yellow Wide Shape Level 3 Orient 1
+SMOKE	  26		2		0		0		0		# Yellow Wide Shape Level 3 Orient 2
+SMOKE	  26		3		0		0		0		# Yellow Wide Shape Level 3 Orient 3
+SMOKE	  27		0		0		28		0		# Green Wide Shape Level 1 Orient 0
+SMOKE	  27		1		18		26		-1		# Green Wide Shape Level 1 Orient 1
+SMOKE	  27		2		0		26		-20		# Green Wide Shape Level 1 Orient 2
+SMOKE	  27		3		-20		26		0		# Green Wide Shape Level 1 Orient 3
+SMOKE	  28		0		5		26		19		# Green Wide Shape Level 2 Orient 0
+SMOKE	  28		1		20		26		-2		# Green Wide Shape Level 2 Orient 1
+SMOKE	  28		2		0		26		-17		# Green Wide Shape Level 2 Orient 2
+SMOKE	  28		3		-19		26		0		# Green Wide Shape Level 2 Orient 3
+SMOKE	  29		0		2		25		20		# Green Wide Shape Level 3 Orient 0
+SMOKE	  29		1		20		25		-2		# Green Wide Shape Level 3 Orient 1
+SMOKE	  29		2		-2		25		-20		# Green Wide Shape Level 3 Orient 2
+SMOKE	  29		3		-20		25		2		# Green Wide Shape Level 3 Orient 3
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+
+
+
+
+

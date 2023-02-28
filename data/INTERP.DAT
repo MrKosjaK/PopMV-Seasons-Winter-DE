@@ -1,0 +1,14 @@
+1 
+15 
+3 
+18 16 17 
+5 1 1 
+
+
+
+			; Number of morph objects defined in this file (max 30)
+			; Object number of textured object (see Interp.inf)
+			; Number of keyframes used (20 max)
+			; Order in which to use these keyframes	(20 max)
+			; Number of frames between each keyframe (should be the same number as the total number of keyframes used)
+

@@ -1,0 +1,12 @@
+
+Have n keyframes to animate
+Load the first keyframe object in slot a and b
+Load the other keyframe objects in slot c onwards
+
+Quad the object in slot a
+Texture map the object in slot a
+
+Update the text file data\interp.dat with the new morph
+details
+
+
