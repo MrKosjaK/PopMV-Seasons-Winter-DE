@@ -140,7 +140,7 @@ e.CmdCurrIdx = e.CmdCurrIdx + 1;
 --map_xz_to_world_coord2d(data[2], data[3], eng_cache_c2d); centre_coord_on_block(eng_cache_c2d); eng_cache_me = world_coord2d_to_map_ptr(eng_cache_c2d); eng_cache_cti.TMIdxs.TargetIdx:set(eng_cache_me.ShapeOrBldgIdx:getThingNum()); eng_cache_cti.TMIdxs.MapIdx = world_coord2d_to_map_idx(eng_cache_c2d); update_cmd_list_entry(eng_cache_cmd, CMD_BUILD_BUILDING, eng_cache_cti, 0); for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then remove_all_persons_commands(t); add_persons_command(t, eng_cache_cmd, 0); set_person_top_state(t); end end
 
 -- table execution for commands
-local ENGINE_FUNC_TABLE_EXECUTE =
+local E_FUNC_TABLE_EXECUTE =
 {
   [0] = function(e, data) e_stop(); end,
   [1] = function(e, data) e_show_panel(); end,
@@ -204,7 +204,7 @@ function e_process_execution()
     if (#Engine.Cmds > 0) then
       for i, cmd in ipairs(Engine.Cmds) do
         if (Engine.Turn >= cmd.Turn and not cmd.Executed) then
-          ENGINE_FUNC_TABLE_EXECUTE[cmd.Type](Engine, cmd.Data);
+          E_FUNC_TABLE_EXECUTE[cmd.Type](Engine, cmd.Data);
           cmd.Executed = true;
         end
       end
