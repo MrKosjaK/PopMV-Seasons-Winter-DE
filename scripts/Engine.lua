@@ -81,7 +81,7 @@ local e_cache_c3d = Coord3D.new();
 local e_cache_cti = CmdTargetInfo.new();
 local e_cache_cmd =
 {
-  Commands.new(),
+  [0] = Commands.new(),
   Commands.new(),
   Commands.new(),
   Commands.new(),
@@ -91,6 +91,23 @@ local e_cache_cmd =
   Commands.new()
 };
 local e_cache_me = nil;
+
+local function construct_command_cache()
+  local num_cmds = Engine.CmdCurrIdx - 1;
+  for i = 0, num_cmds do
+    local data = Engine.CmdCache[i];
+    local flags = 0;
+    
+    if ((i + 1) < num_cmds) then
+      flags = bit32.bor(flags, (1 << 7));
+    end
+    
+    e_cache_cti.TargetCoord.Xpos = bit32.lshift(data[2], 8);
+    e_cache_cti.TargetCoord.Zpos = bit32.lshift(data[3], 8);
+    update_cmd_list_entry(e_cache_cmd[i], data[1], e_cache_cti, flags);
+  end
+end
+
 
 -- command defines
 E_CMD_STOP_EXECUTION = 0; -- NO PARAMS
@@ -114,15 +131,27 @@ E_CMD_DISPATCH_COMMANDS = 16; -- INDEX
 
 -- clear cmd cache
 
-for i = 0,7 do e.CmdCache[i] = {}; end
+--for i = 0,7 do e.CmdCache[i] = {}; end
 
 -- set_next_command
-e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 1] = data[1];
-e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 2] = data[2];
-e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 3] = data[3];
-e.CmdCurrIdx = e.CmdCurrIdx + 1;
+--e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 1] = data[1]; e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 2] = data[2]; e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 3] = data[3]; e.CmdCurrIdx = e.CmdCurrIdx + 1;
 
 -- dispatch commands
+
+--local num_cmds = Engine.CmdCurrIdx - 1;
+-- for i,t in ipairs(e.ThingBuffers[data[1]]) do
+  -- if (t.Type == T_PERSON) then
+    -- remove_all_persons_commands(t);
+    
+    -- for j = 0, num_cmds do
+      -- add_persons_command(t, e_cache_cmd[j], j);
+    -- end
+
+    -- set_person_top_state();
+  -- end
+-- end
+
+--for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then remove_all_persons_commands(t); for j = 0, num_cmds do add_persons_command(t, e_cache_cmd[j], j); end set_person_top_state(); end end
 
 
 
@@ -150,12 +179,15 @@ local E_FUNC_TABLE_EXECUTE =
   [5] = function(e, data) e.Variables[data[1]] = data[2]; end,
   [6] = function(e, data) e.ThingBuffers[data[1]] = nil; e.ThingBuffers[data[1]] = {}; end,
   [7] = function(e, data) end,
-  [8] = function(e, data) for i = 1, data[2] do map_xz_to_world_coord2d(data[6], data[7], e_cache_c2d); centre_coord_on_block(e_cache_c2d); coord2D_to_coord3D(e_cache_c2d, e_cache_c3d); local t = createThing(data[3], data[4], data[5], e_cache_c3d, false, false); if (data[1] ~= -1) then e.ThingBuffers[data[1]][#e.ThingBuffers[data[1]] + 1] = t; end end end,
+  [8] = function(e, data) for i = 1, data[2] do local t = create_thing(data[3], data[4], data[5], data[6], data[7], false, false); if (data[1] ~= -1) then e.ThingBuffers[data[1]][#e.ThingBuffers[data[1]] + 1] = t; end end end,
   [9] = function(e, data) map_xz_to_world_coord2d(data[5], data[6], e_cache_c2d); SearchMapCells(SQUARE, 0, 0, data[7], world_coord2d_to_map_idx(eng_cache_c2d), function(me) if (not me.MapWhoList:isEmpty()) then me.MapWhoList:processList(function(t) if (t.Type == data[2] or data[2] == -1) then if (t.Model == data[3] or data[3] == -1) then if (t.Owner == data[4] or data[4] == -1) then delete_thing_type(t); return true; end end end return true; end); end return true; end); end,
   [10] = function(e, data) e_cache_map.XZ.X = data[4]; e_cache_map.XZ.Z = data[5]; process_shape_map_elements(e_cache_map.Pos, data[1], data[3], data[2], SHME_MODE_SET_PERM); end,
   [11] = function(e, data) e_cache_map.XZ.X = data[2]; e_cache_map.XZ.Z = data[3]; process_shape_map_elements(e_cache_map.Pos, 0, 0, data[1], SHME_MODE_REMOVE_PERM); end,
   [12] = function(e, data) set_players_allied(data[1], data[2]); end,
-  [13] = function(e, data) set_players_enemies(data[1], data[2]); end
+  [13] = function(e, data) set_players_enemies(data[1], data[2]); end,
+  [14] = function(e, data) for i = 0,7 do e.CmdCache[i] = {}; end end,
+  [15] = function(e, data) e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 1] = data[1]; e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 2] = data[2]; e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 3] = data[3]; e.CmdCurrIdx = e.CmdCurrIdx + 1; end,
+  [16] = function(e, data) construct_command_cache(); local num_cmds = Engine.CmdCurrIdx - 1; for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then remove_all_persons_commands(t); for j = 0, num_cmds do add_persons_command(t, e_cache_cmd[j], j); end set_person_top_state(); end end end,
 };
 
 function e_init_engine()
