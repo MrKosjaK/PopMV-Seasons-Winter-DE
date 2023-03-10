@@ -35,43 +35,27 @@ Engine =
   Turn = 0,
 };
 
-local dialog_mt = {};
-dialog_mt.__index = dialog_mt;
-
-setmetatable(Engine.Dialog,
-{
-  __call = function(t, ...) log("DO NOT CALL DIALOG DIRECTLY!"); end,
-  __index = dialog_mt
-});
-
-function dialog_mt:init_dialog()
-  if (#self.MessageQueue > 0) then
-    for i,msg in pairs(self.MessageQueue) do
-      self.MessageQueue[i] = nil;
+function e_init_dialog()
+  local d = Engine.Dialog;
+  if (#d.MessageQueue > 0) then
+    for i,msg in pairs(d.MessageQueue) do
+      d.MessageQueue[i] = nil;
     end
   end
   
-  self.CurrMessageInfo.String = nil;
-  self.CurrMessageInfo.Elements = nil;
-  self.CurrMessageInfo.Elements = {};
+  d.CurrMessageInfo.String = nil;
+  d.CurrMessageInfo.Elements = nil;
+  d.CurrMessageInfo.Elements = {};
   
-  self.DrawInfo.Width = bit32.rshift(gns.ScreenW, 1);
-  self.DrawInfo.Height = bit32.rshift(gns.ScreenH, 3);
-  self.DrawInfo.PosX = GFGetGuiWidth();
-  self.DrawInfo.PosY = 64;
+  d.DrawInfo.Width = bit32.rshift(gns.ScreenW, 1);
+  d.DrawInfo.Height = bit32.rshift(gns.ScreenH, 3);
+  d.DrawInfo.PosX = GFGetGuiWidth();
+  d.DrawInfo.PosY = 64;
   
-  self.DrawInfo.Area.Left = self.DrawInfo.PosX;
-  self.DrawInfo.Area.Right = self.DrawInfo.Area.Left + self.DrawInfo.Width;
-  self.DrawInfo.Area.Top = self.DrawInfo.PosY;
-  self.DrawInfo.Area.Bottom = self.DrawInfo.Area.Top + self.DrawInfo.Height;
-end
-
-function dialog_mt:draw()
-  PopSetFont(4);
-  LbDraw_Rectangle(self.DrawInfo.Area, 196);
-  if (self.CurrMessageInfo.String ~= nil) then
-    LbDraw_Text(self.DrawInfo.Area.Left, self.DrawInfo.Area.Top, self.CurrMessageInfo.String, 0);
-  end
+  d.DrawInfo.Area.Left = d.DrawInfo.PosX;
+  d.DrawInfo.Area.Right = d.DrawInfo.Area.Left + d.DrawInfo.Width;
+  d.DrawInfo.Area.Top = d.DrawInfo.PosY;
+  d.DrawInfo.Area.Bottom = d.DrawInfo.Area.Top + d.DrawInfo.Height;
 end
 
 -- cached stuff for engine
@@ -90,7 +74,6 @@ local function construct_command_buffer()
       local data = Engine.CmdCache[i];
       e_cache_cmd[#e_cache_cmd + 1] = get_next_free_command_list_idx();
       if (e_cache_cmd[#e_cache_cmd] ~= 0) then
-        Log(string.format("%s, %s, %s", data[1], data[2], data[3]));
         local flags = 0;
         
         if ((i + 1) < num_cmds) then
@@ -102,10 +85,6 @@ local function construct_command_buffer()
         update_cmd_list_entry(e_cache_cmd[#e_cache_cmd], data[1], e_cache_cti, flags);
       end
     end
-  end
-  
-  for i,cmd_idx in pairs(e_cache_cmd) do
-    Log(string.format("%i",cmd_idx));
   end
 end
 
@@ -201,7 +180,7 @@ function e_init_engine()
   Engine.IsExecuting = false;
   Engine.Turn = 0;
   
-  Engine.Dialog:init_dialog();
+  e_init_dialog();
 end
 
 function e_post_load_items()
@@ -323,5 +302,15 @@ function e_draw()
   y = y + CharHeight('A');
   DrawTextStr(gui_width, y, string.format("Active: %s", Engine.IsExecuting));
   
-  --self.Dialog:draw();
+  
+  PopSetFont(P3_SMALL_FONT_NORMAL, 0);
+  
+  local d = Engine.Dialog;
+
+  d.CurrMessageInfo.String = string.format("Testing");
+  
+  LbDraw_Rectangle(d.DrawInfo.Area, 196);
+  if (d.CurrMessageInfo.String ~= nil) then
+    DrawTextStr(d.DrawInfo.Area.Left, d.DrawInfo.Area.Top, d.CurrMessageInfo.String);
+  end
 end
