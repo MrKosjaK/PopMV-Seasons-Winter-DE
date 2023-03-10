@@ -35,29 +35,6 @@ Engine =
   Turn = 0,
 };
 
-function e_init_dialog()
-  local d = Engine.Dialog;
-  if (#d.MessageQueue > 0) then
-    for i,msg in pairs(d.MessageQueue) do
-      d.MessageQueue[i] = nil;
-    end
-  end
-  
-  d.CurrMessageInfo.String = nil;
-  d.CurrMessageInfo.Elements = nil;
-  d.CurrMessageInfo.Elements = {};
-  
-  d.DrawInfo.Width = bit32.rshift(gns.ScreenW, 1);
-  d.DrawInfo.Height = bit32.rshift(gns.ScreenH, 3);
-  d.DrawInfo.PosX = GFGetGuiWidth();
-  d.DrawInfo.PosY = 64;
-  
-  d.DrawInfo.Area.Left = d.DrawInfo.PosX;
-  d.DrawInfo.Area.Right = d.DrawInfo.Area.Left + d.DrawInfo.Width;
-  d.DrawInfo.Area.Top = d.DrawInfo.PosY;
-  d.DrawInfo.Area.Bottom = d.DrawInfo.Area.Top + d.DrawInfo.Height;
-end
-
 -- cached stuff for engine
 local e_cache_map = MapPosXZ.new();
 local e_cache_c2d = Coord2D.new();
@@ -180,7 +157,26 @@ function e_init_engine()
   Engine.IsExecuting = false;
   Engine.Turn = 0;
   
-  e_init_dialog();
+  local d = Engine.Dialog;
+  
+  if (#d.MessageQueue > 0) then
+    for i,msg in pairs(d.MessageQueue) do
+      d.MessageQueue[i] = nil;
+    end
+  end
+  
+  d.CurrMessageInfo.String = nil;
+  d.CurrMessageInfo.Elements = {};
+  
+  d.DrawInfo.Width = bit32.rshift(gns.ScreenW, 1);
+  d.DrawInfo.Height = bit32.rshift(gns.ScreenH, 3);
+  d.DrawInfo.PosX = GFGetGuiWidth();
+  d.DrawInfo.PosY = 64;
+  
+  d.DrawInfo.Area.Left = d.DrawInfo.PosX;
+  d.DrawInfo.Area.Right = d.DrawInfo.Area.Left + d.DrawInfo.Width;
+  d.DrawInfo.Area.Top = d.DrawInfo.PosY;
+  d.DrawInfo.Area.Bottom = d.DrawInfo.Area.Top + d.DrawInfo.Height;
 end
 
 function e_post_load_items()
