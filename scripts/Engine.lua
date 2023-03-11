@@ -147,6 +147,66 @@ local E_FUNC_TABLE_EXECUTE =
   [16] = function(e, data) construct_command_buffer(); local num_cmds = Engine.CmdCurrIdx - 1; for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then remove_all_persons_commands(t); t.Flags = bit32.bor(t.Flags, TF_RESET_STATE); for j = 0, num_cmds do add_persons_command(t, e_cache_cmd[j + 1], j); end end end end,
 };
 
+
+-- some dialog helper functions.
+
+local function format_string(_string)
+  local d = Engine.Dialog;
+  
+  d.CurrMessageInfo.String = _string;
+  
+  PopSetFont(P3_SMALL_FONT_NORMAL, 0);
+  
+  local num_words = 0;
+  local max_width = 240;
+  local curr_width = 0;
+  local num_spaces = 0;
+  local current_line = 
+  {
+    text = nil,
+    width = 0
+  };
+  local str_table = {};
+  
+  Log(string.format("%i", CharWidth(65)));
+  Log(string.format("Max width: %i, String width: %i", max_width, string_width(_string)));
+  
+  for w in _string:gmatch("(%S+)") do
+    
+    local w_width = string_width(w);
+    
+    Log("Real Width: " .. (curr_width + (num_spaces * CharWidth(65))));
+    Log("Word Width: " .. w_width);
+    
+    -- ok we want to check if next word can fit into our width.
+    if ((curr_width + (num_spaces * CharWidth(65))) + w_width < max_width) then
+      -- it does fit, pass into current_line
+      str_table[#str_table + 1] = w;
+      curr_width = curr_width + w_width;
+      Log(string.format("After Width: %i", (curr_width + (num_spaces * CharWidth(65)))));
+    else
+      -- compile line and make new one
+      Log("Test");
+      current_line.text = table.concat(str_table, " ");
+      Log(string.format("%s", current_line.text));
+      str_table = {};
+      current_line.width = curr_width + (num_spaces * CharWidth(65));
+      Log(string.format("Final string size is: %i", current_line.width));
+      num_spaces = 0;
+      curr_width = 0;
+      num_words = 0;
+    end
+
+    num_words = num_words + 1;
+    num_spaces = num_words - 1;
+  end
+  
+  Log(string.format("String contained: %i words", num_words));
+end
+
+format_string("Welcome, fellow! How are you, listen, hear me out!");
+--format_string("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.");
+
 function e_init_engine()
   if (#Engine.Cmds ~= 0) then
     for i,k in pairs(Engine.Cmds) do
@@ -302,8 +362,6 @@ function e_draw()
   PopSetFont(P3_SMALL_FONT_NORMAL, 0);
   
   local d = Engine.Dialog;
-
-  d.CurrMessageInfo.String = string.format("Testing");
   
   LbDraw_Rectangle(d.DrawInfo.Area, 196);
   if (d.CurrMessageInfo.String ~= nil) then

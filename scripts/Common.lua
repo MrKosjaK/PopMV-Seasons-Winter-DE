@@ -26,6 +26,8 @@ function OnLoad(slot)
   LoadTable("G_SAVEDATA", slot);
 
   if _OnLoad ~= nil then _OnLoad(slot); end
+  
+  G_GAME_LOADED = true;
 end
 
 function OnFrame()
