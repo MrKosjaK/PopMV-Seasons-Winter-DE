@@ -149,8 +149,26 @@ local E_FUNC_TABLE_EXECUTE =
 
 
 -- some dialog helper functions.
+local function format_string_2(_string)
+  Timer.Start();
+  local str_fmt = string.format;
+  local str_char = string.char;
+  local str_byte = string.byte;
+  local start_n = 1;
+  local end_n = string.len(_string);
+  local temp_str = nil;
+  
+  -- format by single char approach.
+  while (start_n <= end_n) do
+    temp_str = (str_fmt("%s", str_char(str_byte(_string, start_n))));
+    start_n = start_n + 1;
+  end
+  
+  Log(string.format("II - Time elapsed: %.04f", Timer.Stop()));
+end
 
 local function format_string(_string)
+  Timer.Start();
   local d = Engine.Dialog;
   
   d.CurrMessageInfo.String = _string;
@@ -168,30 +186,30 @@ local function format_string(_string)
   };
   local str_table = {};
   
-  Log(string.format("%i", CharWidth(65)));
-  Log(string.format("Max width: %i, String width: %i", max_width, string_width(_string)));
+  --Log(string.format("%i", CharWidth(65)));
+  --Log(string.format("Max width: %i, String width: %i", max_width, string_width(_string)));
   
   for w in _string:gmatch("(%S+)") do
     
     local w_width = string_width(w);
     
-    Log("Real Width: " .. (curr_width + (num_spaces * CharWidth(65))));
-    Log("Word Width: " .. w_width);
+    --Log("Real Width: " .. (curr_width + (num_spaces * CharWidth(65))));
+    --Log("Word Width: " .. w_width);
     
     -- ok we want to check if next word can fit into our width.
     if ((curr_width + (num_spaces * CharWidth(65))) + w_width < max_width) then
       -- it does fit, pass into current_line
       str_table[#str_table + 1] = w;
       curr_width = curr_width + w_width;
-      Log(string.format("After Width: %i", (curr_width + (num_spaces * CharWidth(65)))));
+      --Log(string.format("After Width: %i", (curr_width + (num_spaces * CharWidth(65)))));
     else
       -- compile line and make new one
-      Log("Test");
+      --Log("Test");
       current_line.text = table.concat(str_table, " ");
-      Log(string.format("%s", current_line.text));
+      --Log(string.format("%s", current_line.text));
       str_table = {};
       current_line.width = curr_width + (num_spaces * CharWidth(65));
-      Log(string.format("Final string size is: %i", current_line.width));
+      --Log(string.format("Final string size is: %i", current_line.width));
       num_spaces = 0;
       curr_width = 0;
       num_words = 0;
@@ -201,10 +219,12 @@ local function format_string(_string)
     num_spaces = num_words - 1;
   end
   
-  Log(string.format("String contained: %i words", num_words));
+  --Log(string.format("String contained: %i words", num_words));
+  Log(string.format("I - Time elapsed: %.04f", Timer.Stop()));
 end
 
-format_string("Welcome, fellow! How are you, listen, hear me out!");
+format_string("Test this string!");
+format_string_2("Test this string!");
 --format_string("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.");
 
 function e_init_engine()
