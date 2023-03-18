@@ -17,8 +17,7 @@ Engine =
     MessageQueue = {},
     CurrMessageInfo =
     {
-      String = nil,
-      Elements = {}
+      Lines = {}
     },
     DrawInfo =
     {
@@ -148,84 +147,81 @@ local E_FUNC_TABLE_EXECUTE =
 };
 
 
--- some dialog helper functions.
-local function format_string_2(_string)
-  Timer.Start();
-  local str_fmt = string.format;
-  local str_char = string.char;
-  local str_byte = string.byte;
-  local start_n = 1;
-  local end_n = string.len(_string);
-  local temp_str = nil;
-  
-  -- format by single char approach.
-  while (start_n <= end_n) do
-    temp_str = (str_fmt("%s", str_char(str_byte(_string, start_n))));
-    start_n = start_n + 1;
-  end
-  
-  Log(string.format("II - Time elapsed: %.04f", Timer.Stop()));
+-- let's just redo it again.
+
+local function dialog_clear_curr_msg_info()
+  local d = Engine.Dialog.CurrMessageInfo;
+  d.Lines = {};
 end
 
-local function format_string(_string)
-  Timer.Start();
-  local d = Engine.Dialog;
+local function dialog_create_new_line(_text)
+  return {Height = 0, Text = _text};
+end
+
+local function dialog_recalc_draw_area(_x, _y, _width, _height)
+  local d = Engine.Dialog.DrawInfo;
   
-  d.CurrMessageInfo.String = _string;
+  d.Width = _width or d.Width;
+  d.Height = _height or d.Height;
+  d.PosX = _x;
+  d.PosY = _y;
+  
+  d.Area.Left = d.PosX;
+  d.Area.Right = d.Area.Left + d.Width;
+  d.Area.Top = d.PosY;
+  d.Area.Bottom = d.Area.Top + d.Height;
+end
+
+local function dialog_format_text(_text)
+  Timer.Start();
+  
+  dialog_clear_curr_msg_info();
   
   PopSetFont(P3_SMALL_FONT_NORMAL, 0);
   
-  local num_words = 0;
-  local max_width = 240;
-  local curr_width = 0;
-  local num_spaces = 0;
-  local current_line = 
-  {
-    text = nil,
-    width = 0
-  };
-  local str_table = {};
+  local current_text = _text;
   
-  --Log(string.format("%i", CharWidth(65)));
-  --Log(string.format("Max width: %i, String width: %i", max_width, string_width(_string)));
+  local d = Engine.Dialog.CurrMessageInfo;
+  d.Lines[#d.Lines + 1] = dialog_create_new_line(current_text);
   
-  for w in _string:gmatch("(%S+)") do
+  local curr_pos = 1;
+  local curr_char = nil;
+  local end_pos = string.len(current_text);
+  local line_width = 0;
+  local break_pos = 0;
+  
+  while (curr_pos <= end_pos) do
+    curr_char = string.char(string.byte(current_text, curr_pos));
     
-    local w_width = string_width(w);
+    line_width = line_width + CharWidth(string.byte(current_text, curr_pos));
+    curr_pos = curr_pos + 1;
+    --Log(string.format("Current line width: %i, Break pos: %i, Curr pos: %i, End pos: %i", line_width, break_pos, curr_pos, end_pos));
     
-    --Log("Real Width: " .. (curr_width + (num_spaces * CharWidth(65))));
-    --Log("Word Width: " .. w_width);
-    
-    -- ok we want to check if next word can fit into our width.
-    if ((curr_width + (num_spaces * CharWidth(65))) + w_width < max_width) then
-      -- it does fit, pass into current_line
-      str_table[#str_table + 1] = w;
-      curr_width = curr_width + w_width;
-      --Log(string.format("After Width: %i", (curr_width + (num_spaces * CharWidth(65)))));
-    else
-      -- compile line and make new one
-      --Log("Test");
-      current_line.text = table.concat(str_table, " ");
-      --Log(string.format("%s", current_line.text));
-      str_table = {};
-      current_line.width = curr_width + (num_spaces * CharWidth(65));
-      --Log(string.format("Final string size is: %i", current_line.width));
-      num_spaces = 0;
-      curr_width = 0;
-      num_words = 0;
+    if (curr_char == ' ') then
+      break_pos = curr_pos;
     end
-
-    num_words = num_words + 1;
-    num_spaces = num_words - 1;
+    
+    if (line_width > Engine.Dialog.DrawInfo.Width and break_pos ~= curr_pos) then
+      --Log(string.format("Current line width: %i, Break pos: %i, Curr pos: %i, End pos: %i", line_width, break_pos, curr_pos, end_pos));
+      d.Lines[#d.Lines].Text = string.sub(current_text, 1, break_pos - 1);
+      
+      current_text = string.sub(current_text, break_pos);
+      
+      d.Lines[#d.Lines + 1] = dialog_create_new_line(current_text);
+      
+      line_width = 0;
+      curr_pos = 1;
+      end_pos = string.len(current_text);
+      break_pos = 0;
+    end
   end
   
-  --Log(string.format("String contained: %i words", num_words));
-  Log(string.format("I - Time elapsed: %.04f", Timer.Stop()));
+  dialog_recalc_draw_area(120, 120, 240, #d.Lines * CharHeight('A'));
+  
+  Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
 end
 
-format_string("Test this string!");
-format_string_2("Test this string!");
---format_string("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.");
+--dialog_format_text("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.");
 
 function e_init_engine()
   if (#Engine.Cmds ~= 0) then
@@ -248,8 +244,8 @@ function e_init_engine()
   d.CurrMessageInfo.String = nil;
   d.CurrMessageInfo.Elements = {};
   
-  d.DrawInfo.Width = bit32.rshift(gns.ScreenW, 1);
-  d.DrawInfo.Height = bit32.rshift(gns.ScreenH, 3);
+  d.DrawInfo.Width = 240;
+  d.DrawInfo.Height = 0;
   d.DrawInfo.PosX = GFGetGuiWidth();
   d.DrawInfo.PosY = 64;
   
@@ -257,6 +253,8 @@ function e_init_engine()
   d.DrawInfo.Area.Right = d.DrawInfo.Area.Left + d.DrawInfo.Width;
   d.DrawInfo.Area.Top = d.DrawInfo.PosY;
   d.DrawInfo.Area.Bottom = d.DrawInfo.Area.Top + d.DrawInfo.Height;
+  
+  dialog_format_text("This is a testing text. Do not judge.");
 end
 
 function e_post_load_items()
@@ -378,13 +376,13 @@ function e_draw()
   y = y + CharHeight('A');
   DrawTextStr(gui_width, y, string.format("Active: %s", Engine.IsExecuting));
   
-  
+  dialog_recalc_draw_area(Mouse.getScreenX() + 24, Mouse.getScreenY() + 8, nil, nil);
   PopSetFont(P3_SMALL_FONT_NORMAL, 0);
-  
+
   local d = Engine.Dialog;
   
   LbDraw_Rectangle(d.DrawInfo.Area, 196);
-  if (d.CurrMessageInfo.String ~= nil) then
-    DrawTextStr(d.DrawInfo.Area.Left, d.DrawInfo.Area.Top, d.CurrMessageInfo.String);
+  for i,k in ipairs(d.CurrMessageInfo.Lines) do
+    DrawTextStr(d.DrawInfo.Area.Left, d.DrawInfo.Area.Top + ((i-1)*CharHeight(32)), k.Text);
   end
 end
