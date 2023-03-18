@@ -14,8 +14,8 @@ Engine =
   -- Dialog
   Dialog = 
   {
-    MessageQueue = {},
-    CurrMessageInfo =
+    Queue = {},
+    Msg =
     {
       Lines = {}
     },
@@ -149,8 +149,24 @@ local E_FUNC_TABLE_EXECUTE =
 
 -- let's just redo it again.
 
-local function dialog_clear_curr_msg_info()
-  local d = Engine.Dialog.CurrMessageInfo;
+local function dialog_get_drawinfo_ptr()
+  return Engine.Dialog.DrawInfo;
+end
+
+local function dialog_get_ptr()
+  return Engine.Dialog;
+end
+
+local function dialog_get_msg_ptr()
+  return Engine.Dialog.Msg;
+end
+
+local function dialog_get_queue_ptr()
+  return Engine.Dialog.Queue;
+end
+
+local function dialog_clear_msg_info()
+  local d = dialog_get_msg_ptr();
   d.Lines = {};
 end
 
@@ -159,7 +175,7 @@ local function dialog_create_new_line(_text)
 end
 
 local function dialog_recalc_draw_area(_x, _y, _width, _height)
-  local d = Engine.Dialog.DrawInfo;
+  local d = dialog_get_drawinfo_ptr();
   
   d.Width = _width or d.Width;
   d.Height = _height or d.Height;
@@ -175,13 +191,13 @@ end
 local function dialog_format_text(_text)
   Timer.Start();
   
-  dialog_clear_curr_msg_info();
+  dialog_clear_msg_info();
   
   PopSetFont(P3_SMALL_FONT_NORMAL, 0);
   
   local current_text = _text;
   
-  local d = Engine.Dialog.CurrMessageInfo;
+  local d = dialog_get_msg_ptr();
   d.Lines[#d.Lines + 1] = dialog_create_new_line(current_text);
   
   local curr_pos = 1;
@@ -233,26 +249,27 @@ function e_init_engine()
   Engine.IsExecuting = false;
   Engine.Turn = 0;
   
-  local d = Engine.Dialog;
+  local q = dialog_get_queue_ptr();
   
-  if (#d.MessageQueue > 0) then
-    for i,msg in pairs(d.MessageQueue) do
-      d.MessageQueue[i] = nil;
+  if (#q > 0) then
+    for i,msg in pairs(q) do
+      q[i] = nil;
     end
   end
   
-  d.CurrMessageInfo.String = nil;
-  d.CurrMessageInfo.Elements = {};
+  dialog_clear_msg_info();
   
-  d.DrawInfo.Width = 240;
-  d.DrawInfo.Height = 0;
-  d.DrawInfo.PosX = GFGetGuiWidth();
-  d.DrawInfo.PosY = 64;
+  local d = dialog_get_drawinfo_ptr();
   
-  d.DrawInfo.Area.Left = d.DrawInfo.PosX;
-  d.DrawInfo.Area.Right = d.DrawInfo.Area.Left + d.DrawInfo.Width;
-  d.DrawInfo.Area.Top = d.DrawInfo.PosY;
-  d.DrawInfo.Area.Bottom = d.DrawInfo.Area.Top + d.DrawInfo.Height;
+  d.Width = 240;
+  d.Height = 0;
+  d.PosX = GFGetGuiWidth();
+  d.PosY = 64;
+  
+  d.Area.Left = d.PosX;
+  d.Area.Right = d.Area.Left + d.Width;
+  d.Area.Top = d.PosY;
+  d.Area.Bottom = d.Area.Top + d.Height;
   
   dialog_format_text("This is a testing text. Do not judge.");
 end
@@ -379,10 +396,11 @@ function e_draw()
   dialog_recalc_draw_area(Mouse.getScreenX() + 24, Mouse.getScreenY() + 8, nil, nil);
   PopSetFont(P3_SMALL_FONT_NORMAL, 0);
 
-  local d = Engine.Dialog;
+  local m = dialog_get_msg_ptr();
+  local d = dialog_get_drawinfo_ptr();
   
-  LbDraw_Rectangle(d.DrawInfo.Area, 196);
-  for i,k in ipairs(d.CurrMessageInfo.Lines) do
-    DrawTextStr(d.DrawInfo.Area.Left, d.DrawInfo.Area.Top + ((i-1)*CharHeight(32)), k.Text);
+  LbDraw_Rectangle(d.Area, 196);
+  for i,k in ipairs(m.Lines) do
+    DrawTextStr(d.Area.Left, d.Area.Top + ((i-1)*CharHeight(32)), k.Text);
   end
 end
