@@ -26,6 +26,8 @@ Engine =
       Width = 0,
       Height = 0,
       Area = TbRect.new(),
+      Box = TbRect.new(),
+      Style = BorderLayout.new()
     },
   },
   
@@ -149,6 +151,21 @@ local E_FUNC_TABLE_EXECUTE =
 
 -- let's just redo it again.
 
+local DIALOG_STYLE_TABLE =
+{
+  {1450, 1451, 1452, 1453, 1454 + math.random(0, 1), 1456 + math.random(0, 1), 1458 + math.random(0, 1), 1460 + math.random(0, 1), 1462 + math.random(0, 2)},  -- standard default
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  {}
+};
+
 local function dialog_get_drawinfo_ptr()
   return Engine.Dialog.DrawInfo;
 end
@@ -174,18 +191,43 @@ local function dialog_create_new_line(_text)
   return {Height = 0, Text = _text};
 end
 
+local function dialog_set_style(_style_num)
+  if (_style_num < 0 or _style_num > #DIALOG_STYLE_TABLE) then
+    do return end;
+  end
+  
+  local d = dialog_get_drawinfo_ptr();
+  
+  d.Style.TopLeft = DIALOG_STYLE_TABLE[_style_num][1];
+  d.Style.TopRight = DIALOG_STYLE_TABLE[_style_num][2];
+  d.Style.BottomLeft = DIALOG_STYLE_TABLE[_style_num][3];
+  d.Style.BottomRight = DIALOG_STYLE_TABLE[_style_num][4];
+  
+  d.Style.Top = DIALOG_STYLE_TABLE[_style_num][5];
+  d.Style.Bottom = DIALOG_STYLE_TABLE[_style_num][6];
+  d.Style.Left = DIALOG_STYLE_TABLE[_style_num][7];
+  d.Style.Right = DIALOG_STYLE_TABLE[_style_num][8];
+  
+  d.Style.Centre = DIALOG_STYLE_TABLE[_style_num][9];
+end
+
 local function dialog_recalc_draw_area(_x, _y, _width, _height)
   local d = dialog_get_drawinfo_ptr();
   
   d.Width = _width or d.Width;
   d.Height = _height or d.Height;
-  d.PosX = _x;
-  d.PosY = _y;
+  d.PosX = _x or d.PosX;
+  d.PosY = _y or d.PosY;
   
   d.Area.Left = d.PosX;
   d.Area.Right = d.Area.Left + d.Width;
   d.Area.Top = d.PosY;
   d.Area.Bottom = d.Area.Top + d.Height;
+  
+  d.Box.Left = d.Area.Left - 8;
+  d.Box.Right = d.Area.Right + 8;
+  d.Box.Top = d.Area.Top - 8;
+  d.Box.Bottom = d.Area.Bottom + 8;
 end
 
 local function dialog_format_text(_text)
@@ -193,7 +235,7 @@ local function dialog_format_text(_text)
   
   dialog_clear_msg_info();
   
-  PopSetFont(P3_SMALL_FONT_NORMAL, 0);
+  PopSetFont(P3_LARGE_FONT, 0);
   
   local current_text = _text;
   
@@ -232,7 +274,7 @@ local function dialog_format_text(_text)
     end
   end
   
-  dialog_recalc_draw_area(120, 120, 240, #d.Lines * CharHeight('A'));
+  dialog_recalc_draw_area(nil, nil, nil, #d.Lines * CharHeight('A'));
   
   Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
 end
@@ -261,7 +303,7 @@ function e_init_engine()
   
   local d = dialog_get_drawinfo_ptr();
   
-  d.Width = 240;
+  d.Width = bit32.rshift(gns.ScreenW, 1);
   d.Height = 0;
   d.PosX = GFGetGuiWidth();
   d.PosY = 64;
@@ -271,7 +313,9 @@ function e_init_engine()
   d.Area.Top = d.PosY;
   d.Area.Bottom = d.Area.Top + d.Height;
   
-  dialog_format_text("This is a testing text. Do not judge.");
+  dialog_set_style(1);
+  
+  dialog_format_text("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.");
 end
 
 function e_post_load_items()
@@ -385,7 +429,7 @@ end
 
 function e_draw()
   local gui_width = GFGetGuiWidth();
-  PopSetFont(P3_SMALL_FONT_NORMAL, 0);
+  PopSetFont(P3_LARGE_FONT, 0);
   local y = 0;
   DrawTextStr(gui_width, y, string.format("Commands: %i", #Engine.Cmds));
   y = y + CharHeight('A');
@@ -393,13 +437,15 @@ function e_draw()
   y = y + CharHeight('A');
   DrawTextStr(gui_width, y, string.format("Active: %s", Engine.IsExecuting));
   
-  dialog_recalc_draw_area(Mouse.getScreenX() + 24, Mouse.getScreenY() + 8, nil, nil);
-  PopSetFont(P3_SMALL_FONT_NORMAL, 0);
+  --dialog_recalc_draw_area(Mouse.getScreenX() + 24, Mouse.getScreenY() + 8, nil, nil);
+  --PopSetFont(P3_SMALL_FONT_NORMAL, 0);
 
   local m = dialog_get_msg_ptr();
   local d = dialog_get_drawinfo_ptr();
   
-  LbDraw_Rectangle(d.Area, 196);
+  dialog_recalc_draw_area((bit32.rshift(gns.ScreenW, 1) - bit32.rshift(d.Width, 1)) + bit32.rshift(gui_width, 1), (gns.ScreenH - d.Height) - bit32.rshift(gns.ScreenH, 4), nil, nil);
+  
+  DrawStretchyButtonBox(d.Box, d.Style);
   for i,k in ipairs(m.Lines) do
     DrawTextStr(d.Area.Left, d.Area.Top + ((i-1)*CharHeight(32)), k.Text);
   end
