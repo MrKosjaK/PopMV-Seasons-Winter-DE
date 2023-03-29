@@ -6,10 +6,10 @@ function OnRegenerate(level)
   if _OnRegenerate ~= nil then _OnRegenerate(level); end
 end
 
-function OnTurn(turn)
-  if _OnTurn ~= nil then _OnTurn(turn); end
+function OnTurn()
+  if _OnTurn ~= nil then _OnTurn(Game.getTurn()); end
   
-  e_process_execution();
+  e_process();
   
   -- for some reason some of draw functions returned info based on 640x480 resolution
   -- this thing fixes it.

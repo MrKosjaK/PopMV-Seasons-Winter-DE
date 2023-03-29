@@ -21,6 +21,8 @@ Engine =
     },
     DrawInfo =
     {
+      DrawCount = 0,
+      Draw = false,
       PosX = 0,
       PosY = 0,
       Width = 0,
@@ -232,10 +234,9 @@ end
 
 local function dialog_format_text(_text)
   Timer.Start();
-  
   dialog_clear_msg_info();
   
-  PopSetFont(P3_LARGE_FONT, 0);
+  PopSetFont(P3_SMALL_FONT_NORMAL, 0);
   
   local current_text = _text;
   
@@ -279,6 +280,38 @@ local function dialog_format_text(_text)
   Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
 end
 
+function dialog_queue_msg(_text, _style_num, _draw_count)
+  local msg =
+  {
+    Text = _text,
+    StyleNum = _style_num or 0,
+    DrawCount = _draw_count or 0
+  }
+  
+  local q = dialog_get_queue_ptr();
+  q[#q + 1] = msg;
+end
+
+local function dialog_render_frame()
+  local d = dialog_get_drawinfo_ptr();
+  
+  if (d.Draw) then
+    PopSetFont(P3_SMALL_FONT_NORMAL, 0);
+  
+    local gui_width = GFGetGuiWidth();
+    local m = dialog_get_msg_ptr();
+    
+    dialog_recalc_draw_area((bit32.rshift(gns.ScreenW, 1) - bit32.rshift(d.Width, 1)) + bit32.rshift(gui_width, 1), (gns.ScreenH - d.Height) - bit32.rshift(gns.ScreenH, 4), nil, nil);
+  
+    DrawStretchyButtonBox(d.Box, d.Style);
+    for i,k in ipairs(m.Lines) do
+      DrawTextStr(d.Area.Left, d.Area.Top + ((i-1)*CharHeight(32)), k.Text);
+    end
+    
+    d.DrawCount = d.DrawCount - 1;
+  end
+end
+
 --dialog_format_text("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.");
 
 function e_init_engine()
@@ -313,9 +346,9 @@ function e_init_engine()
   d.Area.Top = d.PosY;
   d.Area.Bottom = d.Area.Top + d.Height;
   
-  dialog_set_style(1);
+  --dialog_set_style(1);
   
-  dialog_format_text("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.");
+  --dialog_format_text("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.");
 end
 
 function e_post_load_items()
@@ -346,7 +379,7 @@ function e_queue_command(_type, _turn, ...)
   Engine.Cmds[#Engine.Cmds + 1] = cmd;
 end
 
-function e_process_execution()
+function e_process()
   if (Engine.IsExecuting) then
     if (#Engine.Cmds > 0) then
       for i, cmd in ipairs(Engine.Cmds) do
@@ -358,6 +391,29 @@ function e_process_execution()
     end
     
     Engine.Turn = Engine.Turn + 1;
+  end
+  
+  -- dialog queue process
+  local d = dialog_get_drawinfo_ptr();
+  local q = dialog_get_queue_ptr();
+  
+  if (d.DrawCount <= 0) then
+    -- check if queue has any msgs.
+    if (#q > 0) then
+      local msg = q[1];
+      
+      
+      dialog_format_text(msg.Text);
+      dialog_set_style(msg.StyleNum);
+      d.DrawCount = msg.DrawCount;
+      d.Draw = true;
+      
+      table.remove(q, 1);
+    else
+      d.Draw = false;
+      d.DrawCount = 0;
+      dialog_clear_msg_info();
+    end
   end
 end
 
@@ -436,17 +492,15 @@ function e_draw()
   DrawTextStr(gui_width, y, string.format("Turn: %i", Engine.Turn));
   y = y + CharHeight('A');
   DrawTextStr(gui_width, y, string.format("Active: %s", Engine.IsExecuting));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Queued Msgs: %s", #Engine.Dialog.Queue));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Draw Count: %s", Engine.Dialog.DrawInfo.DrawCount));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Game Turn: %s", Game.getTurn()));
   
   --dialog_recalc_draw_area(Mouse.getScreenX() + 24, Mouse.getScreenY() + 8, nil, nil);
   --PopSetFont(P3_SMALL_FONT_NORMAL, 0);
 
-  local m = dialog_get_msg_ptr();
-  local d = dialog_get_drawinfo_ptr();
-  
-  dialog_recalc_draw_area((bit32.rshift(gns.ScreenW, 1) - bit32.rshift(d.Width, 1)) + bit32.rshift(gui_width, 1), (gns.ScreenH - d.Height) - bit32.rshift(gns.ScreenH, 4), nil, nil);
-  
-  DrawStretchyButtonBox(d.Box, d.Style);
-  for i,k in ipairs(m.Lines) do
-    DrawTextStr(d.Area.Left, d.Area.Top + ((i-1)*CharHeight(32)), k.Text);
-  end
+  dialog_render_frame();
 end
