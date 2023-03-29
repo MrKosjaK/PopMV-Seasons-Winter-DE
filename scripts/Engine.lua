@@ -345,10 +345,6 @@ function e_init_engine()
   d.Area.Right = d.Area.Left + d.Width;
   d.Area.Top = d.PosY;
   d.Area.Bottom = d.Area.Top + d.Height;
-  
-  --dialog_set_style(1);
-  
-  --dialog_format_text("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.");
 end
 
 function e_post_load_items()
@@ -401,8 +397,7 @@ function e_process()
     -- check if queue has any msgs.
     if (#q > 0) then
       local msg = q[1];
-      
-      
+       
       dialog_format_text(msg.Text);
       dialog_set_style(msg.StyleNum);
       d.DrawCount = msg.DrawCount;
@@ -498,9 +493,6 @@ function e_draw()
   DrawTextStr(gui_width, y, string.format("Draw Count: %s", Engine.Dialog.DrawInfo.DrawCount));
   y = y + CharHeight('A');
   DrawTextStr(gui_width, y, string.format("Game Turn: %s", Game.getTurn()));
-  
-  --dialog_recalc_draw_area(Mouse.getScreenX() + 24, Mouse.getScreenY() + 8, nil, nil);
-  --PopSetFont(P3_SMALL_FONT_NORMAL, 0);
 
   dialog_render_frame();
 end
