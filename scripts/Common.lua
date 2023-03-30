@@ -1,23 +1,21 @@
 require(get_script_dir() .. "Globals");
 
-
-
 function OnRegenerate(level)
   if _OnRegenerate ~= nil then _OnRegenerate(level); end
 end
 
 function OnTurn()
-  if _OnTurn ~= nil then _OnTurn(Game.getTurn()); end
-  
-  e_process();
-  
   -- for some reason some of draw functions returned info based on 640x480 resolution
   -- this thing fixes it.
   if (is_first_init()) then
-    e_init_engine();
-    
-    G_SAVEDATA.INIT = false;
+    e_init_engine();  
   end
+  
+  if _OnTurn ~= nil then _OnTurn(Game.getTurn()); end
+  
+  G_SAVEDATA.INIT = false;
+  
+  e_process();
 end
 
 function OnThing(t_thing)

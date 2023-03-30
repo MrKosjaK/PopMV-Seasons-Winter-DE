@@ -17,6 +17,7 @@ Engine =
     Queue = {},
     Msg =
     {
+      Title = nil;
       Lines = {}
     },
     DrawInfo =
@@ -151,7 +152,7 @@ local E_FUNC_TABLE_EXECUTE =
 };
 
 
--- let's just redo it again.
+-- dialogstuff
 
 local DIALOG_STYLE_TABLE =
 {
@@ -187,6 +188,7 @@ end
 local function dialog_clear_msg_info()
   local d = dialog_get_msg_ptr();
   d.Lines = {};
+  d.Title = nil;
 end
 
 local function dialog_create_new_line(_text)
@@ -236,6 +238,8 @@ local function dialog_format_text(_text)
   Timer.Start();
   dialog_clear_msg_info();
   
+  dialog_recalc_draw_area(nil, nil, bit32.rshift(gns.ScreenW, 1), nil);
+  
   PopSetFont(P3_SMALL_FONT_NORMAL, 0);
   
   local current_text = _text;
@@ -280,10 +284,11 @@ local function dialog_format_text(_text)
   Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
 end
 
-function dialog_queue_msg(_text, _style_num, _draw_count)
+function dialog_queue_msg(_text, _title, _style_num, _draw_count)
   local msg =
   {
     Text = _text,
+    Title = _title or nil,
     StyleNum = _style_num or 0,
     DrawCount = _draw_count or 0
   }
@@ -304,6 +309,26 @@ local function dialog_render_frame()
     dialog_recalc_draw_area((bit32.rshift(gns.ScreenW, 1) - bit32.rshift(d.Width, 1)) + bit32.rshift(gui_width, 1), (gns.ScreenH - d.Height) - bit32.rshift(gns.ScreenH, 4), nil, nil);
   
     DrawStretchyButtonBox(d.Box, d.Style);
+    
+    if (m.Title ~= nil) then
+      PopSetFont(P3_LARGE_FONT, 0);
+      DrawTextStr(d.Area.Left + (CharWidth(65)), d.Area.Top - (CharHeight('A')), m.Title);
+      PopSetFont(P3_SMALL_FONT_NORMAL, 0);
+    end
+    
+    local spr = get_hfx_sprite(173);
+    if (spr ~= nil) then
+      local rect = TbRect.new();
+      rect.Left = d.Area.Left - spr.Width - bit32.rshift(spr.Width, 1) - 8 - 8
+      rect.Right = rect.Left + spr.Width + 20;
+      rect.Top = d.Area.Top - 8 + (bit32.rshift(d.Height, 1) - bit32.rshift(spr.Height, 1));
+      rect.Bottom = rect.Top + spr.Height + 16;
+      
+      DrawStretchyButtonBox(rect, d.Style);
+      
+      LbDraw_Sprite(d.Area.Left - spr.Width - bit32.rshift(spr.Width, 1) - 8, d.Area.Top + (bit32.rshift(d.Height, 1) - bit32.rshift(spr.Height, 1)), spr);
+    end
+    
     for i,k in ipairs(m.Lines) do
       DrawTextStr(d.Area.Left, d.Area.Top + ((i-1)*CharHeight(32)), k.Text);
     end
@@ -311,8 +336,6 @@ local function dialog_render_frame()
     d.DrawCount = d.DrawCount - 1;
   end
 end
-
---dialog_format_text("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.");
 
 function e_init_engine()
   if (#Engine.Cmds ~= 0) then
@@ -333,18 +356,6 @@ function e_init_engine()
   end
   
   dialog_clear_msg_info();
-  
-  local d = dialog_get_drawinfo_ptr();
-  
-  d.Width = bit32.rshift(gns.ScreenW, 1);
-  d.Height = 0;
-  d.PosX = GFGetGuiWidth();
-  d.PosY = 64;
-  
-  d.Area.Left = d.PosX;
-  d.Area.Right = d.Area.Left + d.Width;
-  d.Area.Top = d.PosY;
-  d.Area.Bottom = d.Area.Top + d.Height;
 end
 
 function e_post_load_items()
@@ -354,12 +365,12 @@ function e_post_load_items()
 end
 
 function e_show_panel()
-  process_options(OPT_TOGGLE_PANEL, 1, 0);
+  toggle_panel(1);
   Engine.isPanelShown = true;
 end
 
 function e_hide_panel()
-  process_options(OPT_TOGGLE_PANEL, 0, 0);
+  toggle_panel(0);
   Engine.isPanelShown = false;
 end
 
@@ -392,6 +403,7 @@ function e_process()
   -- dialog queue process
   local d = dialog_get_drawinfo_ptr();
   local q = dialog_get_queue_ptr();
+  local m = dialog_get_msg_ptr();
   
   if (d.DrawCount <= 0) then
     -- check if queue has any msgs.
@@ -399,6 +411,7 @@ function e_process()
       local msg = q[1];
        
       dialog_format_text(msg.Text);
+      m.Title = msg.Title;
       dialog_set_style(msg.StyleNum);
       d.DrawCount = msg.DrawCount;
       d.Draw = true;
@@ -479,20 +492,22 @@ function e_debug_keys_handle(k)
 end
 
 function e_draw()
-  local gui_width = GFGetGuiWidth();
-  PopSetFont(P3_LARGE_FONT, 0);
-  local y = 0;
-  DrawTextStr(gui_width, y, string.format("Commands: %i", #Engine.Cmds));
-  y = y + CharHeight('A');
-  DrawTextStr(gui_width, y, string.format("Turn: %i", Engine.Turn));
-  y = y + CharHeight('A');
-  DrawTextStr(gui_width, y, string.format("Active: %s", Engine.IsExecuting));
-  y = y + CharHeight('A');
-  DrawTextStr(gui_width, y, string.format("Queued Msgs: %s", #Engine.Dialog.Queue));
-  y = y + CharHeight('A');
-  DrawTextStr(gui_width, y, string.format("Draw Count: %s", Engine.Dialog.DrawInfo.DrawCount));
-  y = y + CharHeight('A');
-  DrawTextStr(gui_width, y, string.format("Game Turn: %s", Game.getTurn()));
+  if (is_game_active()) then
+    local gui_width = GFGetGuiWidth();
+    PopSetFont(P3_LARGE_FONT, 0);
+    local y = 0;
+    DrawTextStr(gui_width, y, string.format("Commands: %i", #Engine.Cmds));
+    y = y + CharHeight('A');
+    DrawTextStr(gui_width, y, string.format("Turn: %i", Engine.Turn));
+    y = y + CharHeight('A');
+    DrawTextStr(gui_width, y, string.format("Active: %s", Engine.IsExecuting));
+    y = y + CharHeight('A');
+    DrawTextStr(gui_width, y, string.format("Queued Msgs: %s", #Engine.Dialog.Queue));
+    y = y + CharHeight('A');
+    DrawTextStr(gui_width, y, string.format("Draw Count: %s", Engine.Dialog.DrawInfo.DrawCount));
+    y = y + CharHeight('A');
+    DrawTextStr(gui_width, y, string.format("Game Turn: %s", Game.getTurn()));
 
-  dialog_render_frame();
+    dialog_render_frame();
+  end
 end
