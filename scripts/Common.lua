@@ -1,4 +1,5 @@
 require(get_script_dir() .. "Globals");
+require(get_script_dir() .. "Engine"); -- Main Engine
 
 function OnRegenerate(level)
   if _OnRegenerate ~= nil then _OnRegenerate(level); end

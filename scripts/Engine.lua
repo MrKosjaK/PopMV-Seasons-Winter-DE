@@ -494,8 +494,12 @@ end
 function e_draw()
   if (is_game_active()) then
     local gui_width = GFGetGuiWidth();
-    PopSetFont(P3_LARGE_FONT, 0);
+    PopSetFont(P3_SMALL_FONT_NORMAL, 0);
     local y = 0;
+    
+    DrawTextStr(gui_width, y, "=====ENGINE SYSTEM=====");
+    y = y + CharHeight('A');
+    
     DrawTextStr(gui_width, y, string.format("Commands: %i", #Engine.Cmds));
     y = y + CharHeight('A');
     DrawTextStr(gui_width, y, string.format("Turn: %i", Engine.Turn));
@@ -507,6 +511,18 @@ function e_draw()
     DrawTextStr(gui_width, y, string.format("Draw Count: %s", Engine.Dialog.DrawInfo.DrawCount));
     y = y + CharHeight('A');
     DrawTextStr(gui_width, y, string.format("Game Turn: %s", Game.getTurn()));
+    y = y + CharHeight('A');
+    
+    DrawTextStr(gui_width, y, "=====GAME DIFFICULTY=====");
+    y = y + CharHeight('A');
+    
+    DrawTextStr(gui_width, y, string.format("Is Game Easy: %s", is_game_diff_easy()));
+    y = y + CharHeight('A');
+    DrawTextStr(gui_width, y, string.format("Is Game Normal: %s", is_game_diff_normal()));
+    y = y + CharHeight('A');
+    DrawTextStr(gui_width, y, string.format("Is Game Hard: %s", is_game_diff_hard()));
+    y = y + CharHeight('A');
+    DrawTextStr(gui_width, y, string.format("Is Game Very Hard: %s", is_game_diff_very_hard()));
 
     dialog_render_frame();
   end
