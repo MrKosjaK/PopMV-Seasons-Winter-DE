@@ -301,7 +301,7 @@ local function dialog_recalc_draw_area(_x, _y, _width, _height)
 end
 
 local function dialog_format_text(_text)
-  Timer.Start();
+  --Timer.Start();
   dialog_clear_msg_info();
   
   dialog_recalc_draw_area(nil, nil, bit32.rshift(gns.ScreenW, 1), nil);
@@ -347,7 +347,7 @@ local function dialog_format_text(_text)
   
   dialog_recalc_draw_area(nil, nil, nil, #d.Lines * CharHeight('A'));
   
-  Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
+  --Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
 end
 
 function dialog_queue_msg(_text, _title, _bank, _sprite, _style_num, _draw_count)
@@ -367,7 +367,7 @@ end
 
 local function dialog_render_frame()
   local d = dialog_get_drawinfo_ptr();
-  Timer.Start();
+  --Timer.Start();
   
   if (d.Draw) then
     PopSetFont(P3_SMALL_FONT_NORMAL, 0);
@@ -409,7 +409,7 @@ local function dialog_render_frame()
     d.DrawCount = d.DrawCount - 1;
   end
   
-  Log(string.format("Frame ms: %.04f", Timer.Stop()));
+  --Log(string.format("Frame ms: %.04f", Timer.Stop()));
 end
 
 function e_init_engine()
