@@ -17,6 +17,12 @@ function OnTurn()
   G_SAVEDATA.INIT = false;
   
   e_process();
+  
+  if (is_game_loaded()) then
+    e_post_load_items();
+    
+    G_GAME_LOADED = false;
+  end
 end
 
 function OnThing(t_thing)

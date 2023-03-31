@@ -23,14 +23,24 @@ Engine =
     DrawInfo =
     {
       DrawCount = 0,
+      Bank = -1,
+      Sprite = -1,
       Draw = false,
       PosX = 0,
       PosY = 0,
       Width = 0,
       Height = 0,
       Area = TbRect.new(),
-      Box = TbRect.new(),
-      Style = BorderLayout.new()
+      BoxM = TbRect.new(),
+      BoxI = TbRect.new(),
+      BoxT = TbRect.new(),
+      Clipper = 
+      {
+        Clip = TbRect.new(),
+        Line = 0,
+        Size = 0
+      },
+      Style = BorderLayout.new(),
     },
   },
   
@@ -157,14 +167,14 @@ local E_FUNC_TABLE_EXECUTE =
 local DIALOG_STYLE_TABLE =
 {
   {1450, 1451, 1452, 1453, 1454 + math.random(0, 1), 1456 + math.random(0, 1), 1458 + math.random(0, 1), 1460 + math.random(0, 1), 1462 + math.random(0, 2)},  -- standard default
-  {},
-  {},
-  {},
-  {},
-  {},
-  {},
-  {},
-  {},
+  {879, 880, 881, 882, 883, 884, 885, 886, 887}, -- blue default
+  {906, 907, 908, 909, 910, 911, 912, 913, 914}, -- red default
+  {933, 934, 935, 936, 937, 938, 939, 940, 941}, -- yellow default
+  {960, 961, 962, 963, 964, 965, 966, 967, 968}, -- green default
+  {794, 795, 796, 797, 798, 799, 800, 801, 802}, -- yellow 1
+  {821, 822, 823, 824, 825, 826, 827, 828, 829}, -- yellow 2
+  {996, 997, 998, 999, 1000, 1001, 1002, 1003, 1004}, -- yellow 3
+  {510, 511, 512, 513, 514, 515, 516, 517, 518}, -- grey
   {},
   {}
 };
@@ -215,8 +225,39 @@ local function dialog_set_style(_style_num)
   d.Style.Centre = DIALOG_STYLE_TABLE[_style_num][9];
 end
 
+local function dialog_clear_clipper_info()
+  local d = dialog_get_drawinfo_ptr();
+  
+  d.Clipper.Size = 0;
+  d.Clipper.Line = 0;
+  d.Clipper.Clip.Left = 0;
+  d.Clipper.Clip.Right = 0;
+  d.Clipper.Clip.Top = 0;
+  d.Clipper.Clip.Bottom = 0;
+end
+
+local function dialog_advance_clipper()
+  local d = dialog_get_drawinfo_ptr();
+  local m = dialog_get_msg_ptr();
+  
+  if (d.Clipper.Line < #m.Lines) then
+    d.Clipper.Size = d.Clipper.Size + CharWidth(65);
+    
+    d.Clipper.Clip.Left = d.Area.Left;
+    d.Clipper.Clip.Right = d.Clipper.Clip.Left + d.Clipper.Size;
+    d.Clipper.Clip.Top = d.Area.Top + (CharHeight('A') * d.Clipper.Line);
+    d.Clipper.Clip.Bottom = d.Clipper.Clip.Top + CharHeight('A');
+    
+    if (d.Clipper.Size >= 320) then
+      d.Clipper.Size = 0;
+      d.Clipper.Line = d.Clipper.Line + 1;
+    end
+  end
+end
+
 local function dialog_recalc_draw_area(_x, _y, _width, _height)
   local d = dialog_get_drawinfo_ptr();
+  local m = dialog_get_msg_ptr();
   
   d.Width = _width or d.Width;
   d.Height = _height or d.Height;
@@ -228,10 +269,35 @@ local function dialog_recalc_draw_area(_x, _y, _width, _height)
   d.Area.Top = d.PosY;
   d.Area.Bottom = d.Area.Top + d.Height;
   
-  d.Box.Left = d.Area.Left - 8;
-  d.Box.Right = d.Area.Right + 8;
-  d.Box.Top = d.Area.Top - 8;
-  d.Box.Bottom = d.Area.Bottom + 8;
+  d.BoxM.Left = d.Area.Left - 8;
+  d.BoxM.Right = d.Area.Right + 8;
+  d.BoxM.Top = d.Area.Top - 8;
+  d.BoxM.Bottom = d.Area.Bottom + 8;
+  
+  if (m.Title ~= nil) then
+    PopSetFont(P3_LARGE_FONT, 0);
+    d.BoxT.Left = d.Area.Left + CharWidth(65) - 8;
+    d.BoxT.Right = d.BoxT.Left + string_width(m.Title) + 18;
+    d.BoxT.Top = d.Area.Top - CharHeight('A') - 12;
+    d.BoxT.Bottom = d.BoxT.Top + 48;
+  end
+  
+  if (d.Sprite > -1) then
+    local spr = nil;
+    
+    if (d.Bank == 0) then
+      spr = get_hfx_sprite(d.Sprite);
+    elseif (d.Bank == 1) then
+      spr = get_hspr_sprite(0, d.Sprite);
+    end
+    
+    if (spr ~= nil) then
+      d.BoxI.Left = d.Area.Left - 48;
+      d.BoxI.Right = d.BoxI.Left + 32;
+      d.BoxI.Top = d.Area.Top + bit32.rshift(d.Height, 1) - bit32.rshift(math.max(32, spr.Height), 1);
+      d.BoxI.Bottom = d.BoxI.Top + math.max(32, spr.Height);
+    end
+  end
 end
 
 local function dialog_format_text(_text)
@@ -284,13 +350,15 @@ local function dialog_format_text(_text)
   Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
 end
 
-function dialog_queue_msg(_text, _title, _style_num, _draw_count)
+function dialog_queue_msg(_text, _title, _bank, _sprite, _style_num, _draw_count)
   local msg =
   {
     Text = _text,
     Title = _title or nil,
     StyleNum = _style_num or 0,
-    DrawCount = _draw_count or 0
+    DrawCount = _draw_count or 0,
+    BankNum = _bank or -1,
+    SpriteNum = _sprite or -1
   }
   
   local q = dialog_get_queue_ptr();
@@ -299,6 +367,7 @@ end
 
 local function dialog_render_frame()
   local d = dialog_get_drawinfo_ptr();
+  Timer.Start();
   
   if (d.Draw) then
     PopSetFont(P3_SMALL_FONT_NORMAL, 0);
@@ -308,33 +377,39 @@ local function dialog_render_frame()
     
     dialog_recalc_draw_area((bit32.rshift(gns.ScreenW, 1) - bit32.rshift(d.Width, 1)) + bit32.rshift(gui_width, 1), (gns.ScreenH - d.Height) - bit32.rshift(gns.ScreenH, 4), nil, nil);
   
-    DrawStretchyButtonBox(d.Box, d.Style);
-    
     if (m.Title ~= nil) then
+      DrawStretchyButtonBox(d.BoxT, d.Style);
       PopSetFont(P3_LARGE_FONT, 0);
-      DrawTextStr(d.Area.Left + (CharWidth(65)), d.Area.Top - (CharHeight('A')), m.Title);
+      DrawTextStr(d.Area.Left + CharWidth(65), d.Area.Top - CharHeight('A') - 7, m.Title);
       PopSetFont(P3_SMALL_FONT_NORMAL, 0);
     end
     
-    local spr = get_hfx_sprite(173);
-    if (spr ~= nil) then
-      local rect = TbRect.new();
-      rect.Left = d.Area.Left - spr.Width - bit32.rshift(spr.Width, 1) - 8 - 8
-      rect.Right = rect.Left + spr.Width + 20;
-      rect.Top = d.Area.Top - 8 + (bit32.rshift(d.Height, 1) - bit32.rshift(spr.Height, 1));
-      rect.Bottom = rect.Top + spr.Height + 16;
-      
-      DrawStretchyButtonBox(rect, d.Style);
-      
-      LbDraw_Sprite(d.Area.Left - spr.Width - bit32.rshift(spr.Width, 1) - 8, d.Area.Top + (bit32.rshift(d.Height, 1) - bit32.rshift(spr.Height, 1)), spr);
+    DrawStretchyButtonBox(d.BoxM, d.Style);
+    
+    if (d.Sprite > -1) then
+      DrawStretchyButtonBox(d.BoxI, d.Style);
+      -- HFX sprite.
+      if (d.Bank == 0) then
+        LbDraw_ScaledSprite(d.BoxI.Left + 4, d.BoxI.Top + 4, get_hfx_sprite(d.Sprite), (d.BoxI.Right - d.BoxI.Left) - 8, (d.BoxI.Bottom - d.BoxI.Top) - 8);
+      elseif (d.Bank == 1) then -- HSPR BANK 0
+        LbDraw_ScaledSprite(d.BoxI.Left + 4, d.BoxI.Top + 4, get_hspr_sprite(0, d.Sprite), (d.BoxI.Right - d.BoxI.Left) - 8, (d.BoxI.Bottom - d.BoxI.Top) - 8);
+      end
     end
     
     for i,k in ipairs(m.Lines) do
-      DrawTextStr(d.Area.Left, d.Area.Top + ((i-1)*CharHeight(32)), k.Text);
+      if (d.Clipper.Line >= (i-1)) then
+        DrawTextStr(d.Area.Left, d.Area.Top + ((i-1)*CharHeight(32)), k.Text);
+      end
+      
+      LbDraw_Rectangle(d.Clipper.Clip, 128);
     end
+    
+    dialog_advance_clipper();
     
     d.DrawCount = d.DrawCount - 1;
   end
+  
+  Log(string.format("Frame ms: %.04f", Timer.Stop()));
 end
 
 function e_init_engine()
@@ -360,7 +435,7 @@ end
 
 function e_post_load_items()
   if (not Engine.IsPanelShown) then
-    process_options(OPT_TOGGLE_PANEL, 0, 0);
+    toggle_panel(0);
   end
 end
 
@@ -413,14 +488,18 @@ function e_process()
       dialog_format_text(msg.Text);
       m.Title = msg.Title;
       dialog_set_style(msg.StyleNum);
+      d.Bank = msg.BankNum;
+      d.Sprite = msg.SpriteNum;
       d.DrawCount = msg.DrawCount;
       d.Draw = true;
+      dialog_clear_clipper_info();
       
       table.remove(q, 1);
     else
       d.Draw = false;
       d.DrawCount = 0;
       dialog_clear_msg_info();
+      dialog_clear_clipper_info();
     end
   end
 end

@@ -16,13 +16,15 @@ function _OnTurn(turn)
     e_start();
     e_hide_panel();
     
-    dialog_queue_msg("The world is one of the smallest worlds in existence and consists of three islands. The player gets the largest island, which is also the southern island. This island contains one Stone Head, which has unlimited uses of Landbridge, as well as two Small Huts. The middle island is the second largest of the three and has another Stone Head, this time containing four uses of Lightning. These can be used to quickly end the level if the player chooses to. Also, the Vault of Knowledge containing the Warrior Training Hut is guarded by a lone Brave. Finally, the northern island contains the small Dakini settlement of one Large Hut and a Warrior Training Hut.", "Info", 1, 360);
-    dialog_queue_msg("The level consists of one large island with the player on the east side and the Matak on the west side. There is a hill separating the two sides of the island with an entrance on both sides, with a small lake in the centre. It is possible to reach the top of the hill from the Matak side. There is also a small patch of land off to the side of the starting settlement with a Stone Head containing the Tornado spell, which has three uses. The Totem Pole in the small valley between the two tribes will activate a Landbridge so the player can access the Stone Head. The Vault of Knowledge is halfway in the Matak settlement and is slightly guarded. The Matak begin with their entire settlement complete, bar the Shaman's Guard Tower. Blue tribe begins with one empty Large Hut.", "Info", 1, 480);
-    dialog_queue_msg("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers. You each start with a good shaped, bunky base with many wildies spread over the terrain.", "Info", 1, 150);
-    dialog_queue_msg("Linked isles is a three player map that's very similar to the single player level Building Bridges. It is found in the Map pack 'The Beginning'.", "Info", 1, 150);
-    dialog_queue_msg("This map is basicly the same as two crabs just with three crabs.", "Info", 1, 150);
-    dialog_queue_msg("Face Off is a commonly played map as games can end up short or long. The level focuses on a high hill which is the only path to other bases unless landbridge is used.", "Info", 1, 150);
-    dialog_queue_msg("This is a common map played in multiplayer and is known for the lack of land there is on the map. Tree farming is popular on this level, since you have limited trees.", "Info", 1, 150);
-    dialog_queue_msg("The Journey Begins is the first level featured in the single player campaign Populous: The Beginning and its demo version.", "Info", 1, 200);
+    dialog_queue_msg("Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...", "Tooltip", 1, 7452, 7, 360);
+    dialog_queue_msg("Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...", "Tooltip", 0, 171, 2, 90);
+    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 0, 172, 2, 90);
+    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 0, 173, 3, 90);
+    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 0, 174, 4, 90);
+    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 0, 175, 5, 90);
+    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 0, 176, 6, 90);
+    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 1, 7400, 7, 90);
+    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 1, 172, 8, 90);
+    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 1, 173, 9, 90);
   end
 end
