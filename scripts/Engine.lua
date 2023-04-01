@@ -41,6 +41,7 @@ Engine =
         Size = 0
       },
       Style = BorderLayout.new(),
+      StyleNum = 0
     },
   },
   
@@ -166,6 +167,7 @@ local E_FUNC_TABLE_EXECUTE =
 
 local DIALOG_STYLE_TABLE =
 {
+  [0] = {0, 0, 0, 0, 0, 0, 0, 0, 0},
   {1450, 1451, 1452, 1453, 1454 + math.random(0, 1), 1456 + math.random(0, 1), 1458 + math.random(0, 1), 1460 + math.random(0, 1), 1462 + math.random(0, 2)},  -- standard default
   {879, 880, 881, 882, 883, 884, 885, 886, 887}, -- blue default
   {906, 907, 908, 909, 910, 911, 912, 913, 914}, -- red default
@@ -211,6 +213,11 @@ local function dialog_set_style(_style_num)
   end
   
   local d = dialog_get_drawinfo_ptr();
+  
+  d.StyleNum = _style_num;
+  if (_style_num == 0) then
+    do return end;
+  end
   
   d.Style.TopLeft = DIALOG_STYLE_TABLE[_style_num][1];
   d.Style.TopRight = DIALOG_STYLE_TABLE[_style_num][2];
@@ -379,16 +386,16 @@ local function dialog_render_frame()
     dialog_recalc_draw_area((bit32.rshift(gns.ScreenW, 1) - bit32.rshift(d.Width, 1)) + bit32.rshift(gui_width, 1), (gns.ScreenH - d.Height) - bit32.rshift(gns.ScreenH, 4), nil, nil);
   
     if (m.Title ~= nil) then
-      DrawStretchyButtonBox(d.BoxT, d.Style);
+      if (d.StyleNum > 0) then DrawStretchyButtonBox(d.BoxT, d.Style); end
       PopSetFont(P3_LARGE_FONT, 0);
       DrawTextStr(d.Area.Left + CharWidth(65), d.Area.Top - CharHeight('A') - 7, m.Title);
       PopSetFont(P3_SMALL_FONT_NORMAL, 0);
     end
     
-    DrawStretchyButtonBox(d.BoxM, d.Style);
+    if (d.StyleNum > 0) then DrawStretchyButtonBox(d.BoxM, d.Style); end
     
     if (d.Sprite > -1) then
-      DrawStretchyButtonBox(d.BoxI, d.Style);
+      if (d.StyleNum > 0) then DrawStretchyButtonBox(d.BoxI, d.Style); end
       -- HFX sprite.
       if (d.Bank == 0) then
         LbDraw_ScaledSprite(d.BoxI.Left + 4, d.BoxI.Top + 4, get_hfx_sprite(d.Sprite), (d.BoxI.Right - d.BoxI.Left) - 8, (d.BoxI.Bottom - d.BoxI.Top) - 8);
