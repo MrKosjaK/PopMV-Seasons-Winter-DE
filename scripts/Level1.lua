@@ -16,15 +16,8 @@ function _OnTurn(turn)
     e_start();
     e_hide_panel();
     
-    dialog_queue_msg("Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...", "Tooltip", 1, 7452, 7, 360);
-    dialog_queue_msg("Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...Test... Test... Test... Test...", "Tooltip", 0, 171, 2, 90);
-    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 0, 172, 2, 90);
-    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 0, 173, 3, 90);
-    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 0, 174, 4, 90);
-    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 0, 175, 5, 90);
-    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 0, 176, 6, 90);
-    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 1, 7400, 7, 90);
-    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 1, 172, 8, 90);
-    dialog_queue_msg("Test... Test... Test... Test...", "Tooltip", 1, 173, 9, 90);
+    dialog_queue_msg("T....ASDFASDF  SDFASDFAS DFASDF ASDFAS FASDF ASDFASDFASDFASDF ASDF ASDF ASDF ASDF ASDF", "Tooltip", 0, 173, 3, 580);
+    dialog_queue_msg("Test.. Test... Test...", "Tooltip", 0, 174, 4, 280);
+    dialog_queue_msg("Test. .. Test...", "Tooltip", 0, 175, 5, 280);
   end
 end

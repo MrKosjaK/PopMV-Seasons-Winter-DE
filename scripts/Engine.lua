@@ -202,7 +202,7 @@ local function dialog_clear_msg_info()
 end
 
 local function dialog_create_new_line(_text)
-  return {Height = 0, Text = _text};
+  return {Width = 0, Text = _text};
 end
 
 local function dialog_set_style(_style_num)
@@ -241,14 +241,14 @@ local function dialog_advance_clipper()
   local m = dialog_get_msg_ptr();
   
   if (d.Clipper.Line < #m.Lines) then
-    d.Clipper.Size = d.Clipper.Size + CharWidth(65);
+    d.Clipper.Size = d.Clipper.Size + bit32.rshift(CharWidth(65), 1);
     
     d.Clipper.Clip.Left = d.Area.Left;
     d.Clipper.Clip.Right = d.Clipper.Clip.Left + d.Clipper.Size;
     d.Clipper.Clip.Top = d.Area.Top + (CharHeight('A') * d.Clipper.Line);
     d.Clipper.Clip.Bottom = d.Clipper.Clip.Top + CharHeight('A');
     
-    if (d.Clipper.Size >= 320) then
+    if (d.Clipper.Size >= m.Lines[d.Clipper.Line + 1].Width) then
       d.Clipper.Size = 0;
       d.Clipper.Line = d.Clipper.Line + 1;
     end
@@ -323,6 +323,7 @@ local function dialog_format_text(_text)
     curr_char = string.char(string.byte(current_text, curr_pos));
     
     line_width = line_width + CharWidth(string.byte(current_text, curr_pos));
+    d.Lines[#d.Lines].Width = line_width;
     curr_pos = curr_pos + 1;
     --Log(string.format("Current line width: %i, Break pos: %i, Curr pos: %i, End pos: %i", line_width, break_pos, curr_pos, end_pos));
     
@@ -332,8 +333,8 @@ local function dialog_format_text(_text)
     
     if (line_width > Engine.Dialog.DrawInfo.Width and break_pos ~= curr_pos) then
       --Log(string.format("Current line width: %i, Break pos: %i, Curr pos: %i, End pos: %i", line_width, break_pos, curr_pos, end_pos));
-      d.Lines[#d.Lines].Text = string.sub(current_text, 1, break_pos - 1);
-      
+      d.Lines[#d.Lines].Text = string.sub(current_text, 1, break_pos - 2);
+      d.Lines[#d.Lines].Width = string_width(d.Lines[#d.Lines].Text);
       current_text = string.sub(current_text, break_pos);
       
       d.Lines[#d.Lines + 1] = dialog_create_new_line(current_text);
@@ -400,8 +401,9 @@ local function dialog_render_frame()
       if (d.Clipper.Line >= (i-1)) then
         DrawTextStr(d.Area.Left, d.Area.Top + ((i-1)*CharHeight(32)), k.Text);
       end
-      
+      LbDraw_SetFlagsOn(8);
       LbDraw_Rectangle(d.Clipper.Clip, 128);
+      LbDraw_SetFlagsOff(8);
     end
     
     dialog_advance_clipper();
@@ -431,6 +433,7 @@ function e_init_engine()
   end
   
   dialog_clear_msg_info();
+  dialog_clear_clipper_info();
 end
 
 function e_post_load_items()
