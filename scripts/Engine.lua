@@ -247,13 +247,13 @@ local function dialog_advance_clipper()
   local d = dialog_get_drawinfo_ptr();
   local m = dialog_get_msg_ptr();
   
+  d.Clipper.Clip.Left = d.Area.Left;
+  d.Clipper.Clip.Right = d.Clipper.Clip.Left + d.Clipper.Size;
+  d.Clipper.Clip.Top = d.Area.Top + (CharHeight('A') * d.Clipper.Line);
+  d.Clipper.Clip.Bottom = d.Clipper.Clip.Top + CharHeight('A');
+  
   if (d.Clipper.Line < #m.Lines) then
     d.Clipper.Size = d.Clipper.Size + bit32.rshift(CharWidth(65), 1);
-    
-    d.Clipper.Clip.Left = d.Area.Left;
-    d.Clipper.Clip.Right = d.Clipper.Clip.Left + d.Clipper.Size;
-    d.Clipper.Clip.Top = d.Area.Top + (CharHeight('A') * d.Clipper.Line);
-    d.Clipper.Clip.Bottom = d.Clipper.Clip.Top + CharHeight('A');
     
     if (d.Clipper.Size >= m.Lines[d.Clipper.Line + 1].Width) then
       d.Clipper.Size = 0;
