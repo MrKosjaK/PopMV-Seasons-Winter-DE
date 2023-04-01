@@ -38,7 +38,8 @@ Engine =
       {
         Clip = TbRect.new(),
         Line = 0,
-        Size = 0
+        Size = 0,
+        Finished = true
       },
       Style = BorderLayout.new(),
       StyleNum = 0
@@ -241,6 +242,7 @@ local function dialog_clear_clipper_info()
   d.Clipper.Clip.Right = 0;
   d.Clipper.Clip.Top = 0;
   d.Clipper.Clip.Bottom = 0;
+  d.Clipper.Finished = false;
 end
 
 local function dialog_advance_clipper()
@@ -259,7 +261,13 @@ local function dialog_advance_clipper()
       d.Clipper.Size = 0;
       d.Clipper.Line = d.Clipper.Line + 1;
     end
+  elseif (not d.Clipper.Finished) then
+    d.Clipper.Finished = true;
   end
+end
+
+local function dialog_is_clipper_finished()
+  return Engine.Dialog.DrawInfo.Clipper.Finished;
 end
 
 local function dialog_recalc_draw_area(_x, _y, _width, _height)
@@ -415,7 +423,9 @@ local function dialog_render_frame()
     
     dialog_advance_clipper();
     
-    d.DrawCount = d.DrawCount - 1;
+    if (dialog_is_clipper_finished()) then
+      d.DrawCount = d.DrawCount - 1;
+    end
   end
   
   --Log(string.format("Frame ms: %.04f", Timer.Stop()));
