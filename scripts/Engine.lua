@@ -8,7 +8,7 @@ Engine =
   CmdCurrIdx = 0,
   CmdCache =
   {
-    [0] = {}, {}, {}, {}, {}, {}, {}, {}
+    [0] = {}, {}, {}, {}, {}, {}, {}, {}, {}
   },
   
   -- Dialog
@@ -157,7 +157,6 @@ local function construct_command_buffer()
           e_cache_cti.TargetCoord.Xpos = bit32.band(bit32.lshift(data[2], 8), 0xfe00) + 256;
           e_cache_cti.TargetCoord.Zpos = bit32.band(bit32.lshift(data[3], 8), 0xfe00) + 256;
         end
-        
         
         update_cmd_list_entry(e_cache_cmd[#e_cache_cmd], data[1], e_cache_cti, flags);
       end
@@ -388,7 +387,7 @@ local function dialog_format_text(_text)
   --Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
 end
 
-local function dialog_queue_msg(_text, _title, _bank, _sprite, _style_num, _draw_count)
+function dialog_queue_msg(_text, _title, _bank, _sprite, _style_num, _draw_count)
   local msg =
   {
     Text = _text,
@@ -511,7 +510,7 @@ local E_FUNC_TABLE_EXECUTE =
   [11] = function(e, data) e_cache_map.XZ.X = data[2]; e_cache_map.XZ.Z = data[3]; process_shape_map_elements(e_cache_map.Pos, 0, 0, data[1], SHME_MODE_REMOVE_PERM); end,
   [12] = function(e, data) set_players_allied(data[1], data[2]); end,
   [13] = function(e, data) set_players_enemies(data[1], data[2]); end,
-  [14] = function(e, data) for i = 0,7 do e.CmdCache[i] = {}; end end,
+  [14] = function(e, data) for i = 0,7 do e.CmdCache[i] = {}; end e.CmdCurrIdx = 0; end,
   [15] = function(e, data) e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 1] = data[1]; e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 1] = data[2]; e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 1] = data[3]; e.CmdCurrIdx = e.CmdCurrIdx + 1; end,
   [16] = function(e, data) construct_command_buffer(); local num_cmds = Engine.CmdCurrIdx - 1; for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then remove_all_persons_commands(t); t.Flags = bit32.bor(t.Flags, TF_RESET_STATE); for j = 0, num_cmds do add_persons_command(t, e_cache_cmd[j + 1], j); end end end end,
 };
