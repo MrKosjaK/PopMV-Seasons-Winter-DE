@@ -255,7 +255,7 @@ local function dialog_advance_clipper()
   d.Clipper.Clip.Bottom = d.Clipper.Clip.Top + CharHeight('A');
   
   if (d.Clipper.Line < #m.Lines) then
-    d.Clipper.Size = d.Clipper.Size + bit32.rshift(CharWidth(65), 1);
+    d.Clipper.Size = d.Clipper.Size + bit32.rshift(CharWidth('A'), 1);
     
     if (d.Clipper.Size >= m.Lines[d.Clipper.Line + 1].Width) then
       d.Clipper.Size = 0;
@@ -291,7 +291,7 @@ local function dialog_recalc_draw_area(_x, _y, _width, _height)
   
   if (m.Title ~= nil) then
     PopSetFont(P3_LARGE_FONT, 0);
-    d.BoxT.Left = d.Area.Left + CharWidth(65) - 8;
+    d.BoxT.Left = d.Area.Left + CharWidth('A') - 8;
     d.BoxT.Right = d.BoxT.Left + string_width(m.Title) + 18;
     d.BoxT.Top = d.Area.Top - CharHeight('A') - 12;
     d.BoxT.Bottom = d.BoxT.Top + 48;
@@ -337,7 +337,7 @@ local function dialog_format_text(_text)
   while (curr_pos <= end_pos) do
     curr_char = string.char(string.byte(current_text, curr_pos));
     
-    line_width = line_width + CharWidth(string.byte(current_text, curr_pos));
+    line_width = line_width + CharWidth(curr_char);
     d.Lines[#d.Lines].Width = line_width;
     curr_pos = curr_pos + 1;
     --Log(string.format("Current line width: %i, Break pos: %i, Curr pos: %i, End pos: %i", line_width, break_pos, curr_pos, end_pos));
@@ -396,7 +396,7 @@ local function dialog_render_frame()
     if (m.Title ~= nil) then
       if (d.StyleNum > 0) then DrawStretchyButtonBox(d.BoxT, d.Style); end
       PopSetFont(P3_LARGE_FONT, 0);
-      DrawTextStr(d.Area.Left + CharWidth(65), d.Area.Top - CharHeight('A') - 7, m.Title);
+      DrawTextStr(d.Area.Left + CharWidth('A'), d.Area.Top - CharHeight('A') - 7, m.Title);
       PopSetFont(P3_SMALL_FONT_NORMAL, 0);
     end
     
@@ -413,12 +413,13 @@ local function dialog_render_frame()
     end
     
     for i,k in ipairs(m.Lines) do
-      if (d.Clipper.Line >= (i-1)) then
+      if (d.Clipper.Line > (i-1)) then
         DrawTextStr(d.Area.Left, d.Area.Top + ((i-1)*CharHeight(32)), k.Text);
+      elseif (d.Clipper.Line == (i-1)) then
+        LbDraw_SetClipRect(d.Clipper.Clip);
+        DrawTextStr(d.Area.Left, d.Area.Top + ((i-1)*CharHeight(32)), k.Text);
+        LbDraw_ReleaseClipRect();
       end
-      LbDraw_SetFlagsOn(8);
-      LbDraw_Rectangle(d.Clipper.Clip, 128);
-      LbDraw_SetFlagsOff(8);
     end
     
     dialog_advance_clipper();
