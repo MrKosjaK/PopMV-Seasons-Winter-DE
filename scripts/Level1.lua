@@ -21,7 +21,8 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_CINEMA_FADE, 12, false);
     e_queue_command(E_CMD_SHOW_PANEL, 68);
     
-    e_queue_command(E_CMD_QUEUE_MSG, 12, "Hello, Traveler! Isn't it a beautiful day to murder some enemy tribes? Get some action going on.", nil, 0, 174, 2, 256);
+    e_queue_command(E_CMD_QUEUE_MSG, 12, get_text_str("STR_DIALOG_TEXT_1"), nil, 0, 174, 2, 256);
+    e_queue_command(E_CMD_QUEUE_MSG, 36, get_text_str("STR_DIALOG_TEXT_2"), nil, 0, 174, 2, 256);
     
     e_start();
     e_hide_panel();

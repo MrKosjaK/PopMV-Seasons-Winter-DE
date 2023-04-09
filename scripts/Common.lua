@@ -1,4 +1,5 @@
 require(get_script_dir() .. "Globals");
+require(get_script_dir() .. "LangTable"); -- Language Strings
 require(get_script_dir() .. "Engine"); -- Main Engine
 require(get_script_dir() .. "Badges"); -- Achievement/Badges system
 
