@@ -1,2 +1,2 @@
 :G_SAVEDATA
-do local _={DIFF=1};return _;end
+do local _={DIFF=1,INIT=false};return _;end

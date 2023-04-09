@@ -18,7 +18,7 @@
   "ReleaseDate": "2020",
   "Levels": 12,
   "Lua": true,
-  "SoundEngine": false,
+  "SoundEngine": true,
   "Future1": -1,
   "Future2": -1,
   "Future3": ""

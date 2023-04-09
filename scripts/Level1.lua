@@ -4,6 +4,8 @@ e_allocate_thing_buffers(2);
 
 function _OnTurn(turn)
   if (is_first_init()) then
+    e_queue_command(E_CMD_CINEMA_SET_SIZE, 0, bit32.rshift(gns.ScreenH, 1));
+    e_queue_command(E_CMD_CINEMA_RAISE, 0, true);
     e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 0);
     e_queue_command(E_CMD_SET_NEXT_COMMAND, 1, CMD_GET_WOOD, 116, 108);
     e_queue_command(E_CMD_SET_NEXT_COMMAND, 1, CMD_BUILD_BUILDING, 112, 116);
@@ -16,6 +18,10 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_DISPATCH_COMMANDS, 26, 2);
     e_queue_command(E_CMD_SPAWN_THINGS, 24, 2, 2, T_PERSON, M_PERSON_WARRIOR, TRIBE_BLUE, 108, 122);
     e_queue_command(E_CMD_DISPATCH_COMMANDS, 12, 1);
+    e_queue_command(E_CMD_CINEMA_FADE, 12, false);
+    e_queue_command(E_CMD_SHOW_PANEL, 68);
+    
+    e_queue_command(E_CMD_QUEUE_MSG, 12, "Hello, Traveler! Isn't it a beautiful day to murder some enemy tribes? Get some action going on.", nil, 0, 174, 2, 256);
     
     e_start();
     e_hide_panel();

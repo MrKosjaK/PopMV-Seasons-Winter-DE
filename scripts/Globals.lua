@@ -1,4 +1,4 @@
-local gns = gnsi();
+gns = gnsi();
 
 -- SAVE ITEMS
 G_SAVEDATA =

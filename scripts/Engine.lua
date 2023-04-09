@@ -11,6 +11,15 @@ Engine =
     [0] = {}, {}, {}, {}, {}, {}, {}, {}, {}
   },
   
+  -- Cinematic
+  Cinema =
+  {
+    Draw = false,
+    TopR = TbRect.new(),
+    BottomR = TbRect.new(),
+    Size = 0
+  },
+  
   -- Dialog
   Dialog = 
   {
@@ -183,6 +192,102 @@ E_CMD_BREAK_ALLIANCE = 13; -- PLAYER_1, PLAYER_2
 E_CMD_CLEAR_COMMAND_CACHE = 14; -- NO PARAMS
 E_CMD_SET_NEXT_COMMAND = 15; -- CMD_TYPE, X, Z
 E_CMD_DISPATCH_COMMANDS = 16; -- INDEX
+E_CMD_QUEUE_MSG = 17; -- TEXT_STR, TITLE_STR, BANK_NUM, SPRITE_NUM, STYLE_NUM, POST_DRAW_COUNT
+E_CMD_CINEMA_SET_SIZE = 18; -- SIZE IN PIXELS
+E_CMD_CINEMA_RAISE = 19; -- INSTANT?
+E_CMD_CINEMA_FADE = 20; -- INSTANT?
+
+
+-- cinematicstuff
+
+local function cinema_set_size(_size)
+  local c = Engine.Cinema;
+  c.Size = _size or 0;
+end
+
+local function cinema_start_fade(_instant)
+  local c = Engine.Cinema;
+  
+  -- we basically set size back to 0, and slowly retract rectangles.
+  c.Size = 0;
+  -- that's about it lol
+  
+  if (_instant) then
+    -- Top rectangle
+    c.TopR.Top = 0;
+    c.TopR.Bottom = 0;
+    c.TopR.Left = 0;
+    c.TopR.Right = gns.ScreenW;
+      
+    -- Bottom rectangle
+    c.BottomR.Top = gns.ScreenH;
+    c.BottomR.Bottom = gns.ScreenH;
+    c.BottomR.Left = 0;
+    c.BottomR.Right = gns.ScreenW;
+  end
+end
+
+local function cinema_start_raise(_instant)
+  local c = Engine.Cinema;
+  
+  if (c.Size > 0) then
+    c.Draw = true;
+    
+    if (_instant) then
+      -- Top rectangle
+      c.TopR.Top = 0;
+      c.TopR.Bottom = c.Size;
+      c.TopR.Left = 0;
+      c.TopR.Right = gns.ScreenW;
+      
+      -- Bottom rectangle
+      c.BottomR.Top = gns.ScreenH - c.Size;
+      c.BottomR.Bottom = gns.ScreenH;
+      c.BottomR.Left = 0;
+      c.BottomR.Right = gns.ScreenW;
+    else
+      -- Top rectangle
+      c.TopR.Top = 0;
+      c.TopR.Bottom = 0;
+      c.TopR.Left = 0;
+      c.TopR.Right = gns.ScreenW;
+      
+      -- Bottom rectangle
+      c.BottomR.Top = gns.ScreenH;
+      c.BottomR.Bottom = gns.ScreenH;
+      c.BottomR.Left = 0;
+      c.BottomR.Right = gns.ScreenW;
+    end
+  end
+end
+
+local function cinema_render()
+  local c = Engine.Cinema;
+  
+  if (c.Draw) then
+    -- now check if rectangles need to raise or fade
+    if (c.TopR.Bottom < c.Size) then
+      c.TopR.Bottom = math.min(c.TopR.Bottom + 1, c.Size);
+    elseif (c.Size == 0) then
+      c.TopR.Bottom = math.max(c.TopR.Bottom - 1, 0);
+    end
+    
+    -- now for the other one
+    if ((c.BottomR.Top - gns.ScreenH) < c.Size and c.Size > 0) then
+      c.BottomR.Top = math.max(c.BottomR.Top - 1, (gns.ScreenH - c.Size));
+    elseif (c.Size == 0) then
+      c.BottomR.Top = math.min(c.BottomR.Top + 1, gns.ScreenH);
+    end
+    
+    -- now check if we need to stop drawing rectangles.
+    if (c.Size == 0 and c.TopR.Bottom == 0 and c.BottomR.Top == gns.ScreenH) then
+      c.Draw = false;
+    end
+    
+    LbDraw_Rectangle(c.TopR, 144);
+    LbDraw_Rectangle(c.BottomR, 144);
+  end
+end
 
 
 -- dialogstuff
@@ -387,7 +492,7 @@ local function dialog_format_text(_text)
   --Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
 end
 
-function dialog_queue_msg(_text, _title, _bank, _sprite, _style_num, _draw_count)
+local function dialog_queue_msg(_text, _title, _bank, _sprite, _style_num, _draw_count)
   local msg =
   {
     Text = _text,
@@ -513,6 +618,10 @@ local E_FUNC_TABLE_EXECUTE =
   [14] = function(e, data) for i = 0,7 do e.CmdCache[i] = {}; end e.CmdCurrIdx = 0; end,
   [15] = function(e, data) e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 1] = data[1]; e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 1] = data[2]; e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 1] = data[3]; e.CmdCurrIdx = e.CmdCurrIdx + 1; end,
   [16] = function(e, data) construct_command_buffer(); local num_cmds = Engine.CmdCurrIdx - 1; for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then remove_all_persons_commands(t); t.Flags = bit32.bor(t.Flags, TF_RESET_STATE); for j = 0, num_cmds do add_persons_command(t, e_cache_cmd[j + 1], j); end end end end,
+  [17] = function(e, data) dialog_queue_msg(data[1], data[2], data[3], data[4], data[5], data[6]); end,
+  [18] = function(e, data) cinema_set_size(data[1]); end,
+  [19] = function(e, data) cinema_start_raise(data[1]); end,
+  [20] = function(e, data) cinema_start_fade(data[1]); end,
 };
 
 
@@ -544,17 +653,17 @@ end
 
 function e_post_load_items()
   if (not Engine.IsPanelShown) then
-    toggle_panel(0);
+    toggle_panel(1);
   end
 end
 
 function e_show_panel()
-  toggle_panel(1);
+  toggle_panel(0);
   Engine.isPanelShown = true;
 end
 
 function e_hide_panel()
-  toggle_panel(0);
+  toggle_panel(1);
   Engine.isPanelShown = false;
 end
 
@@ -711,7 +820,8 @@ function e_draw()
     DrawTextStr(gui_width, y, string.format("Is Game Hard: %s", is_game_diff_hard()));
     y = y + CharHeight('A');
     DrawTextStr(gui_width, y, string.format("Is Game Very Hard: %s", is_game_diff_very_hard()));
-
+    
+    cinema_render();
     dialog_render_frame();
   end
 end

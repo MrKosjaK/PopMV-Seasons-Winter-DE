@@ -1,5 +1,6 @@
 require(get_script_dir() .. "Globals");
 require(get_script_dir() .. "Engine"); -- Main Engine
+require(get_script_dir() .. "Badges"); -- Achievement/Badges system
 
 function OnRegenerate(level)
   if _OnRegenerate ~= nil then _OnRegenerate(level); end
@@ -9,12 +10,18 @@ function OnTurn()
   -- for some reason some of draw functions returned info based on 640x480 resolution
   -- this thing fixes it.
   if (is_first_init()) then
-    e_init_engine();  
+    e_init_engine();
+    --Music.Stop();
+    Music.CreateQueue("medievilwhispers");
+    Music.PlayQueue(0);
+    --Music.SetVolume(127);
+    b_load_data_info("..\\Achievements\\a_global.txt");
   end
   
   if _OnTurn ~= nil then _OnTurn(Game.getTurn()); end
   
   G_SAVEDATA.INIT = false;
+  
   
   e_process();
   
