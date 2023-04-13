@@ -39,12 +39,14 @@ end
 
 function OnSave(slot)
   SaveTable("G_SAVEDATA", slot);
+  e_save(slot);
 
   if _OnSave ~= nil then _OnSave(slot); end
 end
 
 function OnLoad(slot)
   LoadTable("G_SAVEDATA", slot);
+  e_load(slot);
 
   if _OnLoad ~= nil then _OnLoad(slot); end
   

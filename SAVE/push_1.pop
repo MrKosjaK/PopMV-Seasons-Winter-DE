@@ -1,2 +1,4 @@
 :G_SAVEDATA
 do local _={DIFF=1,INIT=false};return _;end
+:EngineSave
+do local _={Cmds={},IsPanelShown=true,IsExecuting=false,Cinema={TopR={0,800,0,0},Draw=false,Size=0,BottomR={0,800,600,600}},CmdCache={{25,102,130},{25,116,130}},CmdCurrIdx=2,Turn=1,Variables={},ThingBuffers={{19682,19681},{19293,19294}}};return _;end

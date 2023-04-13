@@ -1,6 +1,4 @@
-local gns = gnsi();
-
-Engine = 
+local Engine = 
 {
   Cmds = {},
   Variables = {},
@@ -59,6 +57,172 @@ Engine =
   IsExecuting = false,
   Turn = 0,
 };
+
+EngineSave = {}; -- this is used for saving/loading
+
+function e_load(slot)
+  -- we want to copy EngineSave stuff into Engine
+  LoadTable("EngineSave", slot);
+  
+  for i,cmd in ipairs(EngineSave.CmdCache) do
+    if (#cmd > 0) then
+      Log(string.format("Idx: %i, D1: %i, D2: %i, D3: %i", i, cmd[1], cmd[2], cmd[3]));
+    end
+  end
+  
+  
+  -- go over fields and stuff, basically just doing it vice versa
+  Engine.IsPanelShown = EngineSave.IsPanelShown;
+  Engine.Turn = EngineSave.Turn;
+  Engine.IsExecuting = EngineSave.IsExecuting;
+  
+  -- command system
+  for i,Cmd in ipairs(EngineSave.Cmds) do
+    Engine.Cmds[i] = {Type = Cmd.Type, Turn = Cmd.Turn, Data = {}, Executed = Cmd.Executed };
+    
+    for j,v in ipairs(Cmd.Data) do
+      Engine.Cmds[i].Data[j] = v;
+    end
+  end
+  
+  -- command cache
+  -- remember that we're using index 0
+  Engine.CmdCurrIdx = EngineSave.CmdCurrIdx;
+  for i = 0, EngineSave.CmdCurrIdx - 1 do
+    local CCmd = EngineSave.CmdCache[i + 1];
+    if (#CCmd > 0) then
+      Engine.CmdCache[i] = {CCmd[1], CCmd[2], CCmd[3]};
+    end
+  end
+  
+  -- variables
+  for i,v in ipairs(EngineSave.Variables) do
+    Engine.Variables[i] = v;
+  end
+  
+  -- thing buffers
+  -- here we need to get pointers to things
+  for i,v in ipairs(EngineSave.ThingBuffers) do
+    Engine.ThingBuffers[i] = {};
+    
+    if (#v > 0) then
+      for j,t_num in ipairs(EngineSave.ThingBuffers[i]) do
+        Engine.ThingBuffers[i][j] = valid_thing_idx_to_ptr(t_num);
+      end
+    end
+  end
+  
+  -- cinema
+  Engine.Cinema.Draw = EngineSave.Cinema.Draw;
+  Engine.Cinema.Size = EngineSave.Cinema.Size;
+  
+  -- top rect
+  Engine.Cinema.TopR.Left = EngineSave.Cinema.TopR[1];
+  Engine.Cinema.TopR.Right = EngineSave.Cinema.TopR[2];
+  Engine.Cinema.TopR.Top = EngineSave.Cinema.TopR[3];
+  Engine.Cinema.TopR.Bottom = EngineSave.Cinema.TopR[4];
+  
+  -- bottom rect
+  Engine.Cinema.BottomR.Left = EngineSave.Cinema.BottomR[1];
+  Engine.Cinema.BottomR.Right = EngineSave.Cinema.BottomR[2];
+  Engine.Cinema.BottomR.Top = EngineSave.Cinema.BottomR[3];
+  Engine.Cinema.BottomR.Bottom = EngineSave.Cinema.BottomR[4];
+  
+  -- dialog
+  -- i'll do it later coz its a bit more complex
+  
+  EngineSave = {}; -- flush
+  Log("Engine successfully loaded!");
+end
+
+function e_save(slot)
+  -- we want to compile Engine object into EngineSave
+  -- first go over basic variables.
+  
+  EngineSave.IsPanelShown = Engine.IsPanelShown;
+  EngineSave.Turn = Engine.Turn;
+  EngineSave.IsExecuting = Engine.IsExecuting
+  
+  -- command system
+  
+  EngineSave.Cmds = {};
+  for i,Cmd in ipairs(Engine.Cmds) do
+    EngineSave.Cmds[i] = {Type = Cmd.Type, Turn = Cmd.Turn, Data = {}, Executed = Cmd.Executed };
+    
+    -- go over Data field
+    for j,v in ipairs(Cmd.Data) do
+      EngineSave.Cmds[i].Data[j] = v;
+    end
+  end
+  
+  -- command cache
+  
+  EngineSave.CmdCurrIdx = Engine.CmdCurrIdx;
+  EngineSave.CmdCache = {};
+  for i = 0, Engine.CmdCurrIdx - 1 do
+    local CCmd = Engine.CmdCache[i];
+    if (#CCmd > 0) then
+      Log(string.format("index: %i", i));
+      EngineSave.CmdCache[i + 1] = {CCmd[1], CCmd[2], CCmd[3]};
+    else
+      EngineSave.CmdCache[i + 1] = {};
+    end
+  end
+  
+  for i,cmd in ipairs(EngineSave.CmdCache) do
+    if (#cmd > 0) then
+      Log(string.format("Idx: %i, D1: %i, D2: %i, D3: %i", i, cmd[1], cmd[2], cmd[3]));
+    end
+  end
+  
+  -- variables 
+  
+  EngineSave.Variables = {};
+  for i,v in ipairs(Engine.Variables) do
+    EngineSave.Variables[i] = v;
+  end
+  
+  -- thing buffers
+  
+  EngineSave.ThingBuffers = {};
+  for i,v in ipairs(Engine.ThingBuffers) do
+    EngineSave.ThingBuffers[i] = {};
+    
+    if (#v > 0) then
+      for j,t_thing in ipairs(Engine.ThingBuffers[i]) do
+        EngineSave.ThingBuffers[i][j] = t_thing.ThingNum; -- we're saving thing nums here since i'm using pointers which are random each time i believe?
+      end
+    end
+  end
+  
+  -- cinema
+  
+  EngineSave.Cinema = {};
+  EngineSave.Cinema.Draw = Engine.Cinema.Draw;
+  EngineSave.Cinema.Size = Engine.Cinema.Size;
+  EngineSave.Cinema.TopR =
+  { 
+    [1] = Engine.Cinema.TopR.Left,
+    [2] = Engine.Cinema.TopR.Right,
+    [3] = Engine.Cinema.TopR.Top,
+    [4] = Engine.Cinema.TopR.Bottom
+  }; -- this is just a table with 4 integers
+  EngineSave.Cinema.BottomR =
+  { 
+    [1] = Engine.Cinema.BottomR.Left,
+    [2] = Engine.Cinema.BottomR.Right,
+    [3] = Engine.Cinema.BottomR.Top,
+    [4] = Engine.Cinema.BottomR.Bottom
+  }; -- this is just a table with 4 integers
+  
+  -- dialog
+  -- i'll do it later coz its a bit more complex
+  
+  -- now save it.
+  SaveTable("EngineSave", slot);
+  EngineSave = {}; -- flush
+  Log("Engine successfully saved!");
+end
 
 -- cached stuff for engine
 local e_cache_map = MapPosXZ.new();
@@ -167,6 +331,7 @@ local function construct_command_buffer()
           e_cache_cti.TargetCoord.Zpos = bit32.band(bit32.lshift(data[3], 8), 0xfe00) + 256;
         end
         
+        Log(string.format("%i", i));
         update_cmd_list_entry(e_cache_cmd[#e_cache_cmd], data[1], e_cache_cti, flags);
       end
     end
@@ -653,18 +818,18 @@ end
 
 function e_post_load_items()
   if (not Engine.IsPanelShown) then
-    toggle_panel(1);
+    toggle_panel(0);
   end
 end
 
 function e_show_panel()
   toggle_panel(0);
-  Engine.isPanelShown = true;
+  Engine.IsPanelShown = true;
 end
 
 function e_hide_panel()
   toggle_panel(1);
-  Engine.isPanelShown = false;
+  Engine.IsPanelShown = false;
 end
 
 function e_queue_command(_type, _turn, ...)
@@ -808,6 +973,8 @@ function e_draw()
     DrawTextStr(gui_width, y, string.format("Draw Count: %s", Engine.Dialog.DrawInfo.DrawCount));
     y = y + CharHeight('A');
     DrawTextStr(gui_width, y, string.format("Game Turn: %s", Game.getTurn()));
+    y = y + CharHeight('A');
+    DrawTextStr(gui_width, y, string.format("Panel Shown: %s", Engine.IsPanelShown));
     y = y + CharHeight('A');
     
     DrawTextStr(gui_width, y, "=====GAME DIFFICULTY=====");

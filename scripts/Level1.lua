@@ -20,15 +20,12 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_DISPATCH_COMMANDS, 12, 1);
     e_queue_command(E_CMD_CINEMA_FADE, 12, false);
     e_queue_command(E_CMD_SHOW_PANEL, 68);
+    e_queue_command(E_CMD_STOP_EXECUTION, 68);
     
     e_queue_command(E_CMD_QUEUE_MSG, 12, get_text_str("STR_DIALOG_TEXT_1"), nil, 0, 174, 2, 256);
     e_queue_command(E_CMD_QUEUE_MSG, 36, get_text_str("STR_DIALOG_TEXT_2"), nil, 0, 174, 2, 256);
     
     e_start();
     e_hide_panel();
-    
-    --dialog_queue_msg("Pressure Point is identicle to the Single Player level, Middle Ground. However most players do not worship the Stone Head which grants you Armageddon unlike the computer players do in Single Player. This is a level which goes in depth on defending with towers.", "Pressure Point", 0, 173, 1, 128);
-    --dialog_queue_msg("Anyone can help create and edit pages for the wiki. We are trying to get everyone involved and create professional articles about anything related to Populous. If you need help please see the Wiki Help page for more infomation about editing the Populous Wiki. If you need ideas goto Wanted Pages.", "Wiki Help", 0, 174, 1, 128);
-    --dialog_queue_msg("Welcome to the Populous Wiki, a resource full of information about everything related to Populous. You will find many strategy guides, hints, tricks and tutorials on playing or editing Populous. Everyone can help extend the wiki by adding or editing articles, for more information see Wiki Help. If you have your own website related to Populous then please link to this resource and then add your website to the links section after logging in.", "Wiki Welcome", 0, 175, 5, 128);
   end
 end
