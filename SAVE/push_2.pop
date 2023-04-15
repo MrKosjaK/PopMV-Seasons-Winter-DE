@@ -1,0 +1,6 @@
+:defeatOnLastLife
+do local _={[1]=false,[2]=false,[3]=false,[0]=true};return _;end
+:isEnabled
+do local _={[1]=false,[2]=false,[3]=false,[0]=true};return _;end
+:reincarnations
+do local _={[1]=5,[2]=5,[3]=5,[0]=4};return _;end

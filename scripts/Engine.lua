@@ -50,12 +50,12 @@ local Engine =
       },
       Style = BorderLayout.new(),
       StyleNum = 0
-    },
+    }
   },
   
   IsPanelShown = true,
   IsExecuting = false,
-  Turn = 0,
+  Turn = 0
 };
 
 EngineSave = {}; -- this is used for saving/loading
@@ -64,13 +64,6 @@ function e_load(slot)
   -- we want to copy EngineSave stuff into Engine
   LoadTable("EngineSave", slot);
   
-  for i,cmd in ipairs(EngineSave.CmdCache) do
-    if (#cmd > 0) then
-      Log(string.format("Idx: %i, D1: %i, D2: %i, D3: %i", i, cmd[1], cmd[2], cmd[3]));
-    end
-  end
-  
-  
   -- go over fields and stuff, basically just doing it vice versa
   Engine.IsPanelShown = EngineSave.IsPanelShown;
   Engine.Turn = EngineSave.Turn;
@@ -78,11 +71,16 @@ function e_load(slot)
   
   -- command system
   for i,Cmd in ipairs(EngineSave.Cmds) do
-    Engine.Cmds[i] = {Type = Cmd.Type, Turn = Cmd.Turn, Data = {}, Executed = Cmd.Executed };
+    Engine.Cmds[i] = {};
+    Engine.Cmds[i].Type = Cmd.Type;
+    Engine.Cmds[i].Turn = Cmd.Turn;
+    Engine.Cmds[i].Data = {};
     
-    for j,v in ipairs(Cmd.Data) do
-      Engine.Cmds[i].Data[j] = v;
+    for j = 0, #Cmd.Data do
+      Engine.Cmds[i].Data[j] = Cmd.Data[j];
     end
+    
+    Engine.Cmds[i].Executed = Cmd.Executed;
   end
   
   -- command cache
@@ -129,7 +127,75 @@ function e_load(slot)
   Engine.Cinema.BottomR.Bottom = EngineSave.Cinema.BottomR[4];
   
   -- dialog
-  -- i'll do it later coz its a bit more complex
+  for i,Msg in ipairs(EngineSave.Dialog.Queue) do
+    Engine.Dialog.Queue[i] = {};
+    Engine.Dialog.Queue[i].Text = Msg.Text;
+    Engine.Dialog.Queue[i].Title = Msg.Title;
+    Engine.Dialog.Queue[i].StyleNum = Msg.StyleNum;
+    Engine.Dialog.Queue[i].DrawCount = Msg.DrawCount;
+    Engine.Dialog.Queue[i].BankNum = Msg.BankNum;
+    Engine.Dialog.Queue[i].SpriteNum = Msg.SpriteNum;
+  end
+  
+  Engine.Dialog.Msg.Title = EngineSave.Dialog.Msg.Title;
+  for i,Line in ipairs(EngineSave.Dialog.Msg.Lines) do
+    Engine.Dialog.Msg.Lines[i] = {};
+    Engine.Dialog.Msg.Lines[i].Text = Line.Text;
+    Engine.Dialog.Msg.Lines[i].Width = Line.Width;
+  end
+  
+  Engine.Dialog.DrawInfo.DrawCount = EngineSave.Dialog.DrawInfo.DrawCount;
+  Engine.Dialog.DrawInfo.Bank = EngineSave.Dialog.DrawInfo.Bank;
+  Engine.Dialog.DrawInfo.Sprite = EngineSave.Dialog.DrawInfo.Sprite;
+  Engine.Dialog.DrawInfo.Draw = EngineSave.Dialog.DrawInfo.Draw;
+  Engine.Dialog.DrawInfo.PosX = EngineSave.Dialog.DrawInfo.PosX;
+  Engine.Dialog.DrawInfo.PosY = EngineSave.Dialog.DrawInfo.PosY;
+  Engine.Dialog.DrawInfo.Width = EngineSave.Dialog.DrawInfo.Width;
+  Engine.Dialog.DrawInfo.Height = EngineSave.Dialog.DrawInfo.Height;
+  
+  -- rectangles
+  Engine.Dialog.DrawInfo.Area.Left = EngineSave.Dialog.DrawInfo.Area[1];
+  Engine.Dialog.DrawInfo.Area.Right = EngineSave.Dialog.DrawInfo.Area[2];
+  Engine.Dialog.DrawInfo.Area.Top = EngineSave.Dialog.DrawInfo.Area[3];
+  Engine.Dialog.DrawInfo.Area.Bottom = EngineSave.Dialog.DrawInfo.Area[4];
+  
+  Engine.Dialog.DrawInfo.BoxM.Left = EngineSave.Dialog.DrawInfo.BoxM[1];
+  Engine.Dialog.DrawInfo.BoxM.Right = EngineSave.Dialog.DrawInfo.BoxM[2];
+  Engine.Dialog.DrawInfo.BoxM.Top = EngineSave.Dialog.DrawInfo.BoxM[3];
+  Engine.Dialog.DrawInfo.BoxM.Bottom = EngineSave.Dialog.DrawInfo.BoxM[4];
+  
+  Engine.Dialog.DrawInfo.BoxI.Left = EngineSave.Dialog.DrawInfo.BoxI[1];
+  Engine.Dialog.DrawInfo.BoxI.Right = EngineSave.Dialog.DrawInfo.BoxI[2];
+  Engine.Dialog.DrawInfo.BoxI.Top = EngineSave.Dialog.DrawInfo.BoxI[3];
+  Engine.Dialog.DrawInfo.BoxI.Bottom = EngineSave.Dialog.DrawInfo.BoxI[4];
+
+  Engine.Dialog.DrawInfo.BoxT.Left = EngineSave.Dialog.DrawInfo.BoxT[1];
+  Engine.Dialog.DrawInfo.BoxT.Right = EngineSave.Dialog.DrawInfo.BoxT[2];
+  Engine.Dialog.DrawInfo.BoxT.Top = EngineSave.Dialog.DrawInfo.BoxT[3];
+  Engine.Dialog.DrawInfo.BoxT.Bottom = EngineSave.Dialog.DrawInfo.BoxT[4];
+  
+  -- clipper
+  Engine.Dialog.DrawInfo.Clipper.Clip.Left = EngineSave.Dialog.DrawInfo.Clipper.Clip[1];
+  Engine.Dialog.DrawInfo.Clipper.Clip.Right = EngineSave.Dialog.DrawInfo.Clipper.Clip[2];
+  Engine.Dialog.DrawInfo.Clipper.Clip.Top = EngineSave.Dialog.DrawInfo.Clipper.Clip[3];
+  Engine.Dialog.DrawInfo.Clipper.Clip.Bottom = EngineSave.Dialog.DrawInfo.Clipper.Clip[4];
+  
+  Engine.Dialog.DrawInfo.Clipper.Line = EngineSave.Dialog.DrawInfo.Clipper.Line;
+  Engine.Dialog.DrawInfo.Clipper.Size = EngineSave.Dialog.DrawInfo.Clipper.Size;
+  Engine.Dialog.DrawInfo.Clipper.Finished = EngineSave.Dialog.DrawInfo.Clipper.Finished;
+  
+  -- style
+  Engine.Dialog.DrawInfo.Style.TopLeft = EngineSave.Dialog.DrawInfo.Style[1];
+  Engine.Dialog.DrawInfo.Style.TopRight = EngineSave.Dialog.DrawInfo.Style[2];
+  Engine.Dialog.DrawInfo.Style.BottomLeft = EngineSave.Dialog.DrawInfo.Style[3];
+  Engine.Dialog.DrawInfo.Style.BottomRight = EngineSave.Dialog.DrawInfo.Style[4];
+  Engine.Dialog.DrawInfo.Style.Top = EngineSave.Dialog.DrawInfo.Style[5];
+  Engine.Dialog.DrawInfo.Style.Bottom = EngineSave.Dialog.DrawInfo.Style[6];
+  Engine.Dialog.DrawInfo.Style.Left = EngineSave.Dialog.DrawInfo.Style[7];
+  Engine.Dialog.DrawInfo.Style.Right = EngineSave.Dialog.DrawInfo.Style[8];
+  Engine.Dialog.DrawInfo.Style.Centre = EngineSave.Dialog.DrawInfo.Style[9];
+
+  Engine.Dialog.DrawInfo.StyleNum = EngineSave.Dialog.DrawInfo.StyleNum;
   
   EngineSave = {}; -- flush
   Log("Engine successfully loaded!");
@@ -144,15 +210,18 @@ function e_save(slot)
   EngineSave.IsExecuting = Engine.IsExecuting
   
   -- command system
-  
   EngineSave.Cmds = {};
   for i,Cmd in ipairs(Engine.Cmds) do
-    EngineSave.Cmds[i] = {Type = Cmd.Type, Turn = Cmd.Turn, Data = {}, Executed = Cmd.Executed };
+    EngineSave.Cmds[i] = {};
+    EngineSave.Cmds[i].Type = Cmd.Type;
+    EngineSave.Cmds[i].Turn = Cmd.Turn;
+    EngineSave.Cmds[i].Data = {};
     
-    -- go over Data field
-    for j,v in ipairs(Cmd.Data) do
-      EngineSave.Cmds[i].Data[j] = v;
+    for j = 1, #Cmd.Data do
+      EngineSave.Cmds[i].Data[j] = Cmd.Data[j];
     end
+    
+    EngineSave.Cmds[i].Executed = Cmd.Executed;
   end
   
   -- command cache
@@ -162,16 +231,9 @@ function e_save(slot)
   for i = 0, Engine.CmdCurrIdx - 1 do
     local CCmd = Engine.CmdCache[i];
     if (#CCmd > 0) then
-      Log(string.format("index: %i", i));
       EngineSave.CmdCache[i + 1] = {CCmd[1], CCmd[2], CCmd[3]};
     else
       EngineSave.CmdCache[i + 1] = {};
-    end
-  end
-  
-  for i,cmd in ipairs(EngineSave.CmdCache) do
-    if (#cmd > 0) then
-      Log(string.format("Idx: %i, D1: %i, D2: %i, D3: %i", i, cmd[1], cmd[2], cmd[3]));
     end
   end
   
@@ -216,7 +278,99 @@ function e_save(slot)
   }; -- this is just a table with 4 integers
   
   -- dialog
-  -- i'll do it later coz its a bit more complex
+  EngineSave.Dialog = {};
+  
+  EngineSave.Dialog.Queue = {};
+  for i,Msg in ipairs(Engine.Dialog.Queue) do
+    EngineSave.Dialog.Queue[i] = {};
+    EngineSave.Dialog.Queue[i].Text = Msg.Text;
+    EngineSave.Dialog.Queue[i].Title = Msg.Title;
+    EngineSave.Dialog.Queue[i].StyleNum = Msg.StyleNum;
+    EngineSave.Dialog.Queue[i].DrawCount = Msg.DrawCount;
+    EngineSave.Dialog.Queue[i].BankNum = Msg.BankNum;
+    EngineSave.Dialog.Queue[i].SpriteNum = Msg.SpriteNum;
+  end
+  
+  EngineSave.Dialog.Msg = { Title = Engine.Dialog.Msg.Title, Lines = {} };
+  for i,Line in ipairs(Engine.Dialog.Msg.Lines) do
+    EngineSave.Dialog.Msg.Lines[i] = {};
+    EngineSave.Dialog.Msg.Lines[i].Text = Line.Text;
+    EngineSave.Dialog.Msg.Lines[i].Width = Line.Width;
+  end
+  
+  EngineSave.Dialog.DrawInfo = {};
+  EngineSave.Dialog.DrawInfo.DrawCount = Engine.Dialog.DrawInfo.DrawCount;
+  EngineSave.Dialog.DrawInfo.Bank = Engine.Dialog.DrawInfo.Bank;
+  EngineSave.Dialog.DrawInfo.Sprite = Engine.Dialog.DrawInfo.Sprite;
+  EngineSave.Dialog.DrawInfo.Draw = Engine.Dialog.DrawInfo.Draw;
+  EngineSave.Dialog.DrawInfo.PosX = Engine.Dialog.DrawInfo.PosX;
+  EngineSave.Dialog.DrawInfo.PosY = Engine.Dialog.DrawInfo.PosY;
+  EngineSave.Dialog.DrawInfo.Width = Engine.Dialog.DrawInfo.Width;
+  EngineSave.Dialog.DrawInfo.Height = Engine.Dialog.DrawInfo.Height;
+  
+  -- rectangles
+  EngineSave.Dialog.DrawInfo.Area =
+  {
+    [1] = Engine.Dialog.DrawInfo.Area.Left,
+    [2] = Engine.Dialog.DrawInfo.Area.Right,
+    [3] = Engine.Dialog.DrawInfo.Area.Top,
+    [4] = Engine.Dialog.DrawInfo.Area.Bottom
+  };
+  
+  EngineSave.Dialog.DrawInfo.BoxM =
+  {
+    [1] = Engine.Dialog.DrawInfo.BoxM.Left,
+    [2] = Engine.Dialog.DrawInfo.BoxM.Right,
+    [3] = Engine.Dialog.DrawInfo.BoxM.Top,
+    [4] = Engine.Dialog.DrawInfo.BoxM.Bottom
+  };
+  
+  EngineSave.Dialog.DrawInfo.BoxI =
+  {
+    [1] = Engine.Dialog.DrawInfo.BoxI.Left,
+    [2] = Engine.Dialog.DrawInfo.BoxI.Right,
+    [3] = Engine.Dialog.DrawInfo.BoxI.Top,
+    [4] = Engine.Dialog.DrawInfo.BoxI.Bottom
+  };
+  
+  EngineSave.Dialog.DrawInfo.BoxT =
+  {
+    [1] = Engine.Dialog.DrawInfo.BoxT.Left,
+    [2] = Engine.Dialog.DrawInfo.BoxT.Right,
+    [3] = Engine.Dialog.DrawInfo.BoxT.Top,
+    [4] = Engine.Dialog.DrawInfo.BoxT.Bottom
+  };
+  
+  -- clipper
+  EngineSave.Dialog.DrawInfo.Clipper = {};
+  
+  EngineSave.Dialog.DrawInfo.Clipper.Clip =
+  {
+    [1] = Engine.Dialog.DrawInfo.Clipper.Clip.Left,
+    [2] = Engine.Dialog.DrawInfo.Clipper.Clip.Right,
+    [3] = Engine.Dialog.DrawInfo.Clipper.Clip.Top,
+    [4] = Engine.Dialog.DrawInfo.Clipper.Clip.Bottom
+  };
+  
+  EngineSave.Dialog.DrawInfo.Clipper.Line = Engine.Dialog.DrawInfo.Clipper.Line;
+  EngineSave.Dialog.DrawInfo.Clipper.Size = Engine.Dialog.DrawInfo.Clipper.Size;
+  EngineSave.Dialog.DrawInfo.Clipper.Finished = Engine.Dialog.DrawInfo.Clipper.Finished;
+  
+  -- style
+  EngineSave.Dialog.DrawInfo.Style =
+  {
+    [1] = Engine.Dialog.DrawInfo.Style.TopLeft,
+    [2] = Engine.Dialog.DrawInfo.Style.TopRight,
+    [3] = Engine.Dialog.DrawInfo.Style.BottomLeft,
+    [4] = Engine.Dialog.DrawInfo.Style.BottomRight,
+    [5] = Engine.Dialog.DrawInfo.Style.Top,
+    [6] = Engine.Dialog.DrawInfo.Style.Bottom,
+    [7] = Engine.Dialog.DrawInfo.Style.Left,
+    [8] = Engine.Dialog.DrawInfo.Style.Right,
+    [9] = Engine.Dialog.DrawInfo.Style.Centre
+  };
+  
+  EngineSave.Dialog.DrawInfo.StyleNum = Engine.Dialog.DrawInfo.StyleNum;
   
   -- now save it.
   SaveTable("EngineSave", slot);
@@ -610,6 +764,8 @@ local function dialog_format_text(_text)
   --Timer.Start();
   dialog_clear_msg_info();
   
+  Log(_text);
+  
   dialog_recalc_draw_area(nil, nil, bit32.rshift(gns.ScreenW, 1), nil);
   
   PopSetFont(P3_SMALL_FONT_NORMAL, 0);
@@ -663,10 +819,12 @@ local function dialog_queue_msg(_text, _title, _bank, _sprite, _style_num, _draw
     Text = _text,
     Title = _title or nil,
     StyleNum = _style_num or 0,
-    DrawCount = _draw_count or 0,
+    DrawCount = _draw_count or 1,
     BankNum = _bank or -1,
     SpriteNum = _sprite or -1
   }
+  
+  Log(string.format("%s, %s, %s, %s, %s, %s", _text, _title, _style_num, _draw_count, _bank, _sprite));
   
   local q = dialog_get_queue_ptr();
   q[#q + 1] = msg;
@@ -988,7 +1146,7 @@ function e_draw()
     y = y + CharHeight('A');
     DrawTextStr(gui_width, y, string.format("Is Game Very Hard: %s", is_game_diff_very_hard()));
     
-    cinema_render();
+    --cinema_render();
     dialog_render_frame();
   end
 end
