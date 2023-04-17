@@ -210,6 +210,7 @@ function e_save(slot)
   EngineSave.IsExecuting = Engine.IsExecuting
   
   -- command system
+  
   EngineSave.Cmds = {};
   for i,Cmd in ipairs(Engine.Cmds) do
     EngineSave.Cmds[i] = {};
@@ -810,7 +811,7 @@ local function dialog_format_text(_text)
   
   dialog_recalc_draw_area(nil, nil, nil, #d.Lines * CharHeight('A'));
   
-  --Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
+  Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
 end
 
 local function dialog_queue_msg(_text, _title, _bank, _sprite, _style_num, _draw_count)
@@ -823,8 +824,6 @@ local function dialog_queue_msg(_text, _title, _bank, _sprite, _style_num, _draw
     BankNum = _bank or -1,
     SpriteNum = _sprite or -1
   }
-  
-  Log(string.format("%s, %s, %s, %s, %s, %s", _text, _title, _style_num, _draw_count, _bank, _sprite));
   
   local q = dialog_get_queue_ptr();
   q[#q + 1] = msg;
@@ -1146,7 +1145,7 @@ function e_draw()
     y = y + CharHeight('A');
     DrawTextStr(gui_width, y, string.format("Is Game Very Hard: %s", is_game_diff_very_hard()));
     
-    --cinema_render();
+    cinema_render();
     dialog_render_frame();
   end
 end
