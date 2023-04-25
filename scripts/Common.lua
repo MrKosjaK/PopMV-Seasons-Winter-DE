@@ -1,10 +1,11 @@
+-- DEBUG
+Timing = require(get_script_dir() .. "D_Timer"); -- Timer debugging.
+
 require(get_script_dir() .. "Globals");
 require(get_script_dir() .. "LangTable"); -- Language Strings
 require(get_script_dir() .. "Engine"); -- Main Engine
 require(get_script_dir() .. "Badges"); -- Achievement/Badges system
 
--- DEBUG
-local Timing = require(get_script_dir() .. "D_Timer"); -- Timer debugging.
 
 function OnRegenerate(level)
   Timing.start("OnRegenerate");
@@ -68,6 +69,7 @@ end
 
 function OnFrame()
   Timing.start("OnFrame");
+  LbDraw_ReleaseClipRect();
   local x, z = Mouse.getMapX(), Mouse.getMapZ();
   PopSetFont(P3_SMALL_FONT_NORMAL, 0);
   DrawTextStr(Mouse.getScreenX(), Mouse.getScreenY() - CharHeight('A'), string.format("%i, %i", x, z));

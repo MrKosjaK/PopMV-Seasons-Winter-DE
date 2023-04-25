@@ -389,12 +389,14 @@ local e_cache_t = nil;
 local e_cache_me = nil;
 
 local function construct_command_buffer()
+  Timing.start("CommandBufferConstruct");
   e_cache_cmd = {};
   
   -- clear targetinfo
   e_cache_cti.TargetCoord.Xpos = 0;
   e_cache_cti.TargetCoord.Zpos = 0;
   e_cache_cti.TMIdxs.TargetIdx = 0;
+  e_cache_cti.TargetIdx = 0;
   e_cache_cti.TMIdxs.MapIdx = 0;
   e_cache_cti.TIdxSize.MapIdx = 0;
   e_cache_cti.TIdxSize.CellsX = 0;
@@ -486,11 +488,13 @@ local function construct_command_buffer()
           e_cache_cti.TargetCoord.Zpos = bit32.band(bit32.lshift(data[3], 8), 0xfe00) + 256;
         end
         
-        Log(string.format("%i", i));
+        --Log(string.format("%i", i));
         update_cmd_list_entry(e_cache_cmd[#e_cache_cmd], data[1], e_cache_cti, flags);
       end
     end
   end
+  
+  Timing.stop("CommandBufferConstruct");
 end
 
 
@@ -585,23 +589,25 @@ local function cinema_render()
   local c = Engine.Cinema;
   
   if (c.Draw) then
-    -- now check if rectangles need to raise or fade
-    if (c.TopR.Bottom < c.Size) then
-      c.TopR.Bottom = math.min(c.TopR.Bottom + 1, c.Size);
-    elseif (c.Size == 0) then
-      c.TopR.Bottom = math.max(c.TopR.Bottom - 1, 0);
-    end
-    
-    -- now for the other one
-    if ((c.BottomR.Top - gns.ScreenH) < c.Size and c.Size > 0) then
-      c.BottomR.Top = math.max(c.BottomR.Top - 1, (gns.ScreenH - c.Size));
-    elseif (c.Size == 0) then
-      c.BottomR.Top = math.min(c.BottomR.Top + 1, gns.ScreenH);
-    end
-    
-    -- now check if we need to stop drawing rectangles.
-    if (c.Size == 0 and c.TopR.Bottom == 0 and c.BottomR.Top == gns.ScreenH) then
-      c.Draw = false;
+    if (is_game_active()) then
+      -- now check if rectangles need to raise or fade
+      if (c.TopR.Bottom < c.Size) then
+        c.TopR.Bottom = math.min(c.TopR.Bottom + 1, c.Size);
+      elseif (c.Size == 0) then
+        c.TopR.Bottom = math.max(c.TopR.Bottom - 1, 0);
+      end
+      
+      -- now for the other one
+      if ((c.BottomR.Top - gns.ScreenH) < c.Size and c.Size > 0) then
+        c.BottomR.Top = math.max(c.BottomR.Top - 1, (gns.ScreenH - c.Size));
+      elseif (c.Size == 0) then
+        c.BottomR.Top = math.min(c.BottomR.Top + 1, gns.ScreenH);
+      end
+      
+      -- now check if we need to stop drawing rectangles.
+      if (c.Size == 0 and c.TopR.Bottom == 0 and c.BottomR.Top == gns.ScreenH) then
+        c.Draw = false;
+      end
     end
     
     LbDraw_Rectangle(c.TopR, 144);
@@ -763,9 +769,8 @@ end
 
 local function dialog_format_text(_text)
   --Timer.Start();
+  Timing.start("Dlg_Format");
   dialog_clear_msg_info();
-  
-  Log(_text);
   
   dialog_recalc_draw_area(nil, nil, bit32.rshift(gns.ScreenW, 1), nil);
   
@@ -811,7 +816,8 @@ local function dialog_format_text(_text)
   
   dialog_recalc_draw_area(nil, nil, nil, #d.Lines * CharHeight('A'));
   
-  Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
+  Timing.stop("Dlg_Format");
+  --Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
 end
 
 local function dialog_queue_msg(_text, _title, _bank, _sprite, _style_num, _draw_count)
@@ -1002,6 +1008,7 @@ function e_queue_command(_type, _turn, ...)
 end
 
 function e_process()
+  Timing.start("Engine_Process");
   if (Engine.IsExecuting) then
     if (#Engine.Cmds > 0) then
       for i, cmd in ipairs(Engine.Cmds) do
@@ -1042,6 +1049,8 @@ function e_process()
       dialog_clear_clipper_info();
     end
   end
+  
+  Timing.stop("Engine_Process");
 end
 
 function e_start()
@@ -1111,41 +1120,42 @@ function e_debug_keys_handle(k)
 end
 
 function e_draw()
+  local gui_width = GFGetGuiWidth();
+  PopSetFont(P3_SMALL_FONT_NORMAL, 0);
+  
+  cinema_render();
+  
   if (is_game_active()) then
-    local gui_width = GFGetGuiWidth();
-    PopSetFont(P3_SMALL_FONT_NORMAL, 0);
-    local y = 0;
-    
-    DrawTextStr(gui_width, y, "=====ENGINE SYSTEM=====");
-    y = y + CharHeight('A');
-    
-    DrawTextStr(gui_width, y, string.format("Commands: %i", #Engine.Cmds));
-    y = y + CharHeight('A');
-    DrawTextStr(gui_width, y, string.format("Turn: %i", Engine.Turn));
-    y = y + CharHeight('A');
-    DrawTextStr(gui_width, y, string.format("Active: %s", Engine.IsExecuting));
-    y = y + CharHeight('A');
-    DrawTextStr(gui_width, y, string.format("Queued Msgs: %s", #Engine.Dialog.Queue));
-    y = y + CharHeight('A');
-    DrawTextStr(gui_width, y, string.format("Draw Count: %s", Engine.Dialog.DrawInfo.DrawCount));
-    y = y + CharHeight('A');
-    DrawTextStr(gui_width, y, string.format("Game Turn: %s", Game.getTurn()));
-    y = y + CharHeight('A');
-    DrawTextStr(gui_width, y, string.format("Panel Shown: %s", Engine.IsPanelShown));
-    y = y + CharHeight('A');
-    
-    DrawTextStr(gui_width, y, "=====GAME DIFFICULTY=====");
-    y = y + CharHeight('A');
-    
-    DrawTextStr(gui_width, y, string.format("Is Game Easy: %s", is_game_diff_easy()));
-    y = y + CharHeight('A');
-    DrawTextStr(gui_width, y, string.format("Is Game Normal: %s", is_game_diff_normal()));
-    y = y + CharHeight('A');
-    DrawTextStr(gui_width, y, string.format("Is Game Hard: %s", is_game_diff_hard()));
-    y = y + CharHeight('A');
-    DrawTextStr(gui_width, y, string.format("Is Game Very Hard: %s", is_game_diff_very_hard()));
-    
-    cinema_render();
     dialog_render_frame();
   end
+  
+  local y = 0;
+  DrawTextStr(gui_width, y, "=====ENGINE SYSTEM=====");
+  y = y + CharHeight('A');
+    
+  DrawTextStr(gui_width, y, string.format("Commands: %i", #Engine.Cmds));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Turn: %i", Engine.Turn));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Active: %s", Engine.IsExecuting));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Queued Msgs: %s", #Engine.Dialog.Queue));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Draw Count: %s", Engine.Dialog.DrawInfo.DrawCount));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Game Turn: %s", Game.getTurn()));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Panel Shown: %s", Engine.IsPanelShown));
+  y = y + CharHeight('A');
+    
+  DrawTextStr(gui_width, y, "=====GAME DIFFICULTY=====");
+  y = y + CharHeight('A');
+    
+  DrawTextStr(gui_width, y, string.format("Is Game Easy: %s", is_game_diff_easy()));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Is Game Normal: %s", is_game_diff_normal()));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Is Game Hard: %s", is_game_diff_hard()));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Is Game Very Hard: %s", is_game_diff_very_hard()));
 end
