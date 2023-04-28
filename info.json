@@ -5,14 +5,7 @@
   "Packer": "Lovenji / MrKosjaK",
   "Download": "http://thebeginning.uk/",
   "Youtube": [],
-  "Images": [
-	"SeaWin1",
-		"SeaWin2",
-			"SeaWin3",
-				"SeaWin4",
-					"SeaWin5",
-						"SeaWin6"
-  ],
+  "Images": ["SeaWin1", "SeaWin2", "SeaWin3", "SeaWin4", "SeaWin5", "SeaWin6"],
   "Difficulty": 0,
   "Version": "DE 1.0",
   "ReleaseDate": "2020",

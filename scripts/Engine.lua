@@ -498,29 +498,6 @@ local function construct_command_buffer()
 end
 
 
--- command defines
-E_CMD_STOP_EXECUTION = 0; -- NO PARAMS
-E_CMD_SHOW_PANEL = 1; -- NO PARAMS
-E_CMD_HIDE_PANEL = 2; -- NO PARAMS
-E_CMD_ENABLE_INPUT = 3; -- NO PARAMS
-E_CMD_DISABLE_INPUT = 4; -- NO PARAMS
-E_CMD_SET_VARIABLE = 5; -- INDEX, VALUE
-E_CMD_CLEAR_THING_BUFFER = 6; -- INDEX
-E_CMD_ADD_THINGS_TO_BUFFER = 7; -- INDEX, AMOUNT, TYPE, MODEL, OWNER, X, Z, RADIUS
-E_CMD_SPAWN_THINGS = 8; -- INDEX, AMOUNT, TYPE, MODEL, OWNER, X, Z
-E_CMD_DELETE_THINGS = 9; -- AMOUNT, TYPE, MODEL, OWNER, X, Z, RADIUS
-E_CMD_PLACE_BLDG_SHAPE = 10; -- MODEL, OWNER, ORIENTATION, X, Z
-E_CMD_DELETE_BLDG_SHAPE = 11; -- OWNER, X, Z
-E_CMD_SET_ALLIANCE = 12; -- PLAYER_1, PLAYER_2
-E_CMD_BREAK_ALLIANCE = 13; -- PLAYER_1, PLAYER_2
-E_CMD_CLEAR_COMMAND_CACHE = 14; -- NO PARAMS
-E_CMD_SET_NEXT_COMMAND = 15; -- CMD_TYPE, X, Z
-E_CMD_DISPATCH_COMMANDS = 16; -- INDEX
-E_CMD_QUEUE_MSG = 17; -- TEXT_STR, TITLE_STR, BANK_NUM, SPRITE_NUM, STYLE_NUM, POST_DRAW_COUNT
-E_CMD_CINEMA_SET_SIZE = 18; -- SIZE IN PIXELS
-E_CMD_CINEMA_RAISE = 19; -- INSTANT?
-E_CMD_CINEMA_FADE = 20; -- INSTANT?
-
 
 -- cinematicstuff
 
@@ -926,6 +903,40 @@ end
 
 --map_xz_to_world_coord2d(data[2], data[3], eng_cache_c2d); centre_coord_on_block(eng_cache_c2d); eng_cache_me = world_coord2d_to_map_ptr(eng_cache_c2d); eng_cache_cti.TMIdxs.TargetIdx:set(eng_cache_me.ShapeOrBldgIdx:getThingNum()); eng_cache_cti.TMIdxs.MapIdx = world_coord2d_to_map_idx(eng_cache_c2d); update_cmd_list_entry(eng_cache_cmd, CMD_BUILD_BUILDING, eng_cache_cti, 0); for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then remove_all_persons_commands(t); add_persons_command(t, eng_cache_cmd, 0); set_person_top_state(t); end end
 
+
+
+
+
+
+-- command defines
+E_CMD_STOP_EXECUTION = 0; -- NO PARAMS
+E_CMD_SHOW_PANEL = 1; -- NO PARAMS
+E_CMD_HIDE_PANEL = 2; -- NO PARAMS
+E_CMD_ENABLE_INPUT = 3; -- NO PARAMS
+E_CMD_DISABLE_INPUT = 4; -- NO PARAMS
+E_CMD_SET_VARIABLE = 5; -- INDEX, VALUE
+E_CMD_CLEAR_THING_BUFFER = 6; -- INDEX
+E_CMD_ADD_THINGS_TO_BUFFER = 7; -- INDEX, AMOUNT, TYPE, MODEL, OWNER, X, Z, RADIUS
+E_CMD_SPAWN_THINGS = 8; -- INDEX, AMOUNT, TYPE, MODEL, OWNER, X, Z
+E_CMD_DELETE_THINGS = 9; -- AMOUNT, TYPE, MODEL, OWNER, X, Z, RADIUS
+E_CMD_PLACE_BLDG_SHAPE = 10; -- MODEL, OWNER, ORIENTATION, X, Z
+E_CMD_DELETE_BLDG_SHAPE = 11; -- OWNER, X, Z
+E_CMD_SET_ALLIANCE = 12; -- PLAYER_1, PLAYER_2
+E_CMD_BREAK_ALLIANCE = 13; -- PLAYER_1, PLAYER_2
+E_CMD_CLEAR_COMMAND_CACHE = 14; -- NO PARAMS
+E_CMD_SET_NEXT_COMMAND = 15; -- CMD_TYPE, X, Z
+E_CMD_DISPATCH_COMMANDS = 16; -- INDEX
+E_CMD_QUEUE_MSG = 17; -- TEXT_STR, TITLE_STR, BANK_NUM, SPRITE_NUM, STYLE_NUM, POST_DRAW_COUNT
+E_CMD_CINEMA_SET_SIZE = 18; -- SIZE IN PIXELS
+E_CMD_CINEMA_RAISE = 19; -- INSTANT?
+E_CMD_CINEMA_FADE = 20; -- INSTANT?
+E_CMD_MUSIC_PLAY = 21; -- STRING_NAME, LOOPED
+E_CMD_MUSIC_STOP = 22; -- NO PARAMS
+E_CMD_SET_CAMERA_PARAMS = 23; -- X, Z, ANGLE
+E_CMD_TRIGGER_ACTIVATE = 24; -- X, Z
+E_CMD_PERS_NEW_STATE = 25; -- INDEX, STATE
+
+
 -- table execution for commands
 local E_FUNC_TABLE_EXECUTE =
 {
@@ -936,9 +947,9 @@ local E_FUNC_TABLE_EXECUTE =
   [4] = function(e, data) DISABLE_USER_INPUTS(); end,
   [5] = function(e, data) e.Variables[data[1]] = data[2]; end,
   [6] = function(e, data) e.ThingBuffers[data[1]] = nil; e.ThingBuffers[data[1]] = {}; end,
-  [7] = function(e, data) end,
+  [7] = function(e, data) e_cache_map.XZ.X = data[6]; e_cache_map.XZ.Z = data[7]; local count = data[2]; ProcessMap(SQUARE, 0, 0, data[8], e_cache_map.Pos, function(me) ProcessMapWho(function(t) if (t.Type == data[3] or t.Type == -1) then if (t.Model == data[4] or t.Model == -1) then if (t.Owner == data[5] or t.Owner == -1) then e.ThingBuffers[data[1]][#e.ThingBuffers[data[1]] + 1] = t; count = count - 1 if (count > 0) then return true; else return false; end end end end return true; end); if (count > 0) then return true; else return false; end end); end,
   [8] = function(e, data) for i = 1, data[2] do local t = create_thing(data[3], data[4], data[5], data[6], data[7]); if (data[1] ~= -1) then e.ThingBuffers[data[1]][#e.ThingBuffers[data[1]] + 1] = t; end end end,
-  [9] = function(e, data) end,
+  [9] = function(e, data) e_cache_map.XZ.X = data[5]; e_cache_map.XZ.Z = data[6]; local count = data[1]; ProcessMap(SQUARE, 0, 0, data[7], e_cache_map.Pos, function(me) ProcessMapWho(function(t) if (t.Type == data[2] or t.Type == -1) then if (t.Model == data[3] or t.Model == -1) then if (t.Owner == data[4] or t.Owner == -1) then delete_thing_type(t); count = count - 1 if (count > 0) then return true; else return false; end end end end return true; end); if (count > 0) then return true; else return false; end end); end,
   [10] = function(e, data) e_cache_map.XZ.X = data[4]; e_cache_map.XZ.Z = data[5]; process_shape_map_elements(e_cache_map.Pos, data[1], data[3], data[2], SHME_MODE_SET_PERM); end,
   [11] = function(e, data) e_cache_map.XZ.X = data[2]; e_cache_map.XZ.Z = data[3]; process_shape_map_elements(e_cache_map.Pos, 0, 0, data[1], SHME_MODE_REMOVE_PERM); end,
   [12] = function(e, data) set_players_allied(data[1], data[2]); end,
@@ -950,6 +961,18 @@ local E_FUNC_TABLE_EXECUTE =
   [18] = function(e, data) cinema_set_size(data[1]); end,
   [19] = function(e, data) cinema_start_raise(data[1]); end,
   [20] = function(e, data) cinema_start_fade(data[1]); end,
+  [21] = function(e, data) Music.Play(data[1], data[2]); end,
+  [22] = function(e, data) Music.Stop(); end,
+  [23] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); Camera.setCoords(e_cache_c3d); Camera.setAngle(data[3]); end,
+  [24] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; trigger_trigger_thing_at_map_pos(e_cache_map.Pos); end,
+  [25] = function(e, data) end,
+  [26] = function(e, data) end,
+  [27] = function(e, data) end,
+  [28] = function(e, data) end,
+  [29] = function(e, data) end,
+  [30] = function(e, data) end,
+  [31] = function(e, data) end,
+  [32] = function(e, data) end,
 };
 
 
@@ -1130,6 +1153,10 @@ function e_draw()
   end
   
   local y = 0;
+  DrawTextStr(gui_width, y, "=====MISC STUFF=====");
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Camera Angle: %i", Camera.getAngle()));
+  y = y + CharHeight('A');
   DrawTextStr(gui_width, y, "=====ENGINE SYSTEM=====");
   y = y + CharHeight('A');
     

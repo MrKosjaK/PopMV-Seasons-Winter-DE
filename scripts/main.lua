@@ -1,5 +1,5 @@
-MVMod().DarkFog = false;
-MVMod().RegenFog = false;
+MVMod().DarkFog = true; -- enforce.
+MVMod().RegenFog = true; -- enforce.
 FENEW.hideNewGame();
 FENEW.hideTutorial();
 Difficulty.Process(false);

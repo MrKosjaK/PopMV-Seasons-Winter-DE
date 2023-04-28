@@ -19,10 +19,6 @@ function OnTurn()
   -- this thing fixes it.
   if (is_first_init()) then
     e_init_engine();
-    --Music.Stop();
-    Music.CreateQueue("medievilwhispers");
-    Music.PlayQueue(0);
-    --Music.SetVolume(127);
     b_load_data_info("..\\Achievements\\a_global.txt");
   end
   
@@ -30,9 +26,10 @@ function OnTurn()
   
   G_SAVEDATA.INIT = false;
   
-  
+  -- process engine
   e_process();
   
+  -- post load stuff
   if (is_game_loaded()) then
     e_post_load_items();
     
