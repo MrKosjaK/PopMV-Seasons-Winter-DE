@@ -607,8 +607,10 @@ local DIALOG_STYLE_TABLE =
   {821, 822, 823, 824, 825, 826, 827, 828, 829}, -- yellow 2
   {996, 997, 998, 999, 1000, 1001, 1002, 1003, 1004}, -- yellow 3
   {510, 511, 512, 513, 514, 515, 516, 517, 518}, -- grey
-  {},
-  {}
+  {1615, 1616, 1617, 1618, 1619, 1620, 1621, 1622, 1623}, -- cyan default
+  {1642, 1643, 1644, 1645, 1646, 1647, 1648, 1649, 1670}, -- purple default
+  {1669, 1670, 1671, 1672, 1673, 1674, 1675, 1676, 1677}, -- black default
+  {1696, 1697, 1698, 1699, 1700, 1701, 1702, 1703, 1704} -- orange default
 };
 
 local function dialog_get_drawinfo_ptr()
@@ -864,50 +866,6 @@ local function dialog_render_frame()
 end
 
 
--- clear cmd cache
-
---for i = 0,7 do e.CmdCache[i] = {}; end
-
--- set_next_command
---e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 1] = data[1]; e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 2] = data[2]; e.CmdCache[e.CmdCurrIdx][#e.CmdCache[e.CmdCurrIdx] + 3] = data[3]; e.CmdCurrIdx = e.CmdCurrIdx + 1;
-
--- dispatch commands
-
---local num_cmds = Engine.CmdCurrIdx - 1;
--- for i,t in ipairs(e.ThingBuffers[data[1]]) do
-  -- if (t.Type == T_PERSON) then
-    -- remove_all_persons_commands(t);
-    
-    -- for j = 0, num_cmds do
-      -- add_persons_command(t, e_cache_cmd[j], j);
-    -- end
-
-    -- set_person_top_state();
-  -- end
--- end
-
---for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then remove_all_persons_commands(t); for j = 0, num_cmds do add_persons_command(t, e_cache_cmd[j], j); end set_person_top_state(); end end
-
-
-
--- map_xz_to_world_coord2d(data[2], data[3], eng_cache_cti.TargetCoord);
--- centre_coord_on_block(eng_cache_cti.TargetCoord);
--- update_cmd_list_entry(eng_cache_cmd, CMD_GOTO_POINT, eng_cache_cti, 0);
--- for i,t in ipairs(e.ThingBuffers[data[1]]) do
-  -- if (t.Type == T_PERSON) then
-    -- remove_all_persons_commands(t);
-    -- add_persons_command(t, eng_cache_cmd, 0);
-    -- set_person_top_state(t);
-  -- end
--- end
-
---map_xz_to_world_coord2d(data[2], data[3], eng_cache_c2d); centre_coord_on_block(eng_cache_c2d); eng_cache_me = world_coord2d_to_map_ptr(eng_cache_c2d); eng_cache_cti.TMIdxs.TargetIdx:set(eng_cache_me.ShapeOrBldgIdx:getThingNum()); eng_cache_cti.TMIdxs.MapIdx = world_coord2d_to_map_idx(eng_cache_c2d); update_cmd_list_entry(eng_cache_cmd, CMD_BUILD_BUILDING, eng_cache_cti, 0); for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then remove_all_persons_commands(t); add_persons_command(t, eng_cache_cmd, 0); set_person_top_state(t); end end
-
-
-
-
-
-
 -- command defines
 E_CMD_STOP_EXECUTION = 0; -- NO PARAMS
 E_CMD_SHOW_PANEL = 1; -- NO PARAMS
@@ -935,6 +893,7 @@ E_CMD_MUSIC_STOP = 22; -- NO PARAMS
 E_CMD_SET_CAMERA_PARAMS = 23; -- X, Z, ANGLE
 E_CMD_TRIGGER_ACTIVATE = 24; -- X, Z
 E_CMD_PERS_NEW_STATE = 25; -- INDEX, STATE
+E_CMD_TRIBE_SET_SKIN = 26; -- BASE_PN, NEW_PN, BETA?
 
 
 -- table execution for commands
@@ -965,8 +924,8 @@ local E_FUNC_TABLE_EXECUTE =
   [22] = function(e, data) Music.Stop(); end,
   [23] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); Camera.setCoords(e_cache_c3d); Camera.setAngle(data[3]); end,
   [24] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; trigger_trigger_thing_at_map_pos(e_cache_map.Pos); end,
-  [25] = function(e, data) end,
-  [26] = function(e, data) end,
+  [25] = function(e, data) for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then set_person_new_state(t, data[2]); end end end,
+  [26] = function(e, data) Skin(data[1], data[2]); Mods.setBetaTribe(data[1], data[3]); Mods.setBadgeBeta(data[1], data[3]); end,
   [27] = function(e, data) end,
   [28] = function(e, data) end,
   [29] = function(e, data) end,
@@ -974,10 +933,6 @@ local E_FUNC_TABLE_EXECUTE =
   [31] = function(e, data) end,
   [32] = function(e, data) end,
 };
-
-
-
-
 
 
 function e_init_engine()
