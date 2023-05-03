@@ -1,4 +1,5 @@
 gns = gnsi();
+gsm = gsmi();
 
 -- SAVE ITEMS
 G_SAVEDATA =
@@ -39,4 +40,12 @@ end
 
 function is_game_active()
   return (bit32.band(gns.Flags, 2) == 0 and bit32.band(gns.Flags3, 2147483648) == 0);
+end
+
+function game_disable_wins()
+  gsm.Flags = bit32.bxor(gsm.Flags, GSMI_NO_WIN);
+end
+
+function game_disable_loses()
+  gsm.Flags = bit32.bxor(gsm.Flags, GSMI_NO_LOSE);
 end

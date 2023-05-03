@@ -13,6 +13,13 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_CINEMA_RAISE, 0, true);
     e_queue_command(E_CMD_SET_CAMERA_PARAMS, 0, 18, 232, 1769);
     e_queue_command(E_CMD_TRIBE_SET_SKIN, 0, 0, 0, true);
+    e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_BLUE, 97, 207);
+    e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_RED, 101, 119);
+    
+    -- misc stuff
+    PLAYER_IDX_2_PTR(TRIBE_BLUE).DeadCount = 0;
+    PLAYER_IDX_2_PTR(TRIBE_RED).DeadCount = 0;
+    set_number_of_one_shots_of_a_spell_player_has(TRIBE_BLUE, M_SPELL_INSECT_PLAGUE, 4);
     
     -- alliances
     e_queue_command(E_CMD_SET_ALLIANCE, 0, TRIBE_RED, TRIBE_YELLOW);
@@ -25,7 +32,7 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_QUEUE_MSG, 96, Lang.get_str("StrDlgGeneralText3"), nil, nil, nil, 0, 128);
     
     -- lower cinema
-    e_queue_command(E_CMD_CINEMA_FADE, 146, false);
+    e_queue_command(E_CMD_CINEMA_SET_SIZE, 146, bit32.rshift(gns.ScreenH, 3));
     
     -- spawn in people
     -- story teller
@@ -51,7 +58,11 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_DISPATCH_COMMANDS, 174, 3);
     
     -- story teller starts talking
-    e_queue_command(E_CMD_QUEUE_MSG, 278, Lang.get_str("StrDlgStoryTellerText1"), "Story Teller", 1, 170, 1, 256);
+    e_queue_command(E_CMD_QUEUE_MSG, 278, Lang.get_str("StrDlgStoryTellerText1"), "Story Teller", 1, 170, 3, 64*3);
+    e_queue_command(E_CMD_QUEUE_MSG, 345, Lang.get_str("StrDlgStoryTellerText2"), "Story Teller", 1, 170, 3, 64*3);
+    e_queue_command(E_CMD_QUEUE_MSG, 402, Lang.get_str("StrDlgBravesText1"), "Folks", 1, 170, 4, 64*2);
+    e_queue_command(E_CMD_CINEMA_FADE, 402, false);
+    e_queue_command(E_CMD_STOP_EXECUTION, 403);
     
     -- start engine
     e_start();

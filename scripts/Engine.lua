@@ -15,6 +15,7 @@ local Engine =
     Draw = false,
     TopR = TbRect.new(),
     BottomR = TbRect.new(),
+    State = 0,
     Size = 0
   },
   
@@ -113,6 +114,7 @@ function e_load(slot)
   -- cinema
   Engine.Cinema.Draw = EngineSave.Cinema.Draw;
   Engine.Cinema.Size = EngineSave.Cinema.Size;
+  Engine.Cinema.State = EngineSave.Cinema.State;
   
   -- top rect
   Engine.Cinema.TopR.Left = EngineSave.Cinema.TopR[1];
@@ -263,6 +265,7 @@ function e_save(slot)
   EngineSave.Cinema = {};
   EngineSave.Cinema.Draw = Engine.Cinema.Draw;
   EngineSave.Cinema.Size = Engine.Cinema.Size;
+  EngineSave.Cinema.State = Engine.Cinema.State;
   EngineSave.Cinema.TopR =
   { 
     [1] = Engine.Cinema.TopR.Left,
@@ -511,6 +514,7 @@ local function cinema_start_fade(_instant)
   
   -- we basically set size back to 0, and slowly retract rectangles.
   c.Size = 0;
+  c.State = 0;
   -- that's about it lol
   
   if (_instant) then
@@ -530,6 +534,8 @@ end
 
 local function cinema_start_raise(_instant)
   local c = Engine.Cinema;
+  
+  c.State = 1;
   
   if (c.Size > 0) then
     c.Draw = true;
@@ -567,23 +573,28 @@ local function cinema_render()
   
   if (c.Draw) then
     if (is_game_active()) then
-      -- now check if rectangles need to raise or fade
-      if (c.TopR.Bottom < c.Size) then
-        c.TopR.Bottom = math.min(c.TopR.Bottom + 1, c.Size);
-      elseif (c.Size == 0) then
-        c.TopR.Bottom = math.max(c.TopR.Bottom - 1, 0);
-      end
-      
-      -- now for the other one
-      if ((c.BottomR.Top - gns.ScreenH) < c.Size and c.Size > 0) then
-        c.BottomR.Top = math.max(c.BottomR.Top - 1, (gns.ScreenH - c.Size));
-      elseif (c.Size == 0) then
+      if (c.State == 1) then
+        -- now check if rectangles need to raise or fade
+        if (c.TopR.Bottom <= c.Size) then
+          c.TopR.Bottom = math.min(c.TopR.Bottom + 1, c.Size);
+        else
+          c.TopR.Bottom = math.max(c.TopR.Bottom - 1, 0);
+        end
+        
+        -- now for the other one
+        if ((gns.ScreenH - c.BottomR.Top) <= c.Size) then
+          c.BottomR.Top = math.max(c.BottomR.Top - 1, (gns.ScreenH - c.Size));
+        else
+          c.BottomR.Top = math.min(c.BottomR.Top + 1, gns.ScreenH);
+        end
+      elseif (c.State == 0) then
+        -- now check if we need to stop drawing rectangles.
         c.BottomR.Top = math.min(c.BottomR.Top + 1, gns.ScreenH);
-      end
-      
-      -- now check if we need to stop drawing rectangles.
-      if (c.Size == 0 and c.TopR.Bottom == 0 and c.BottomR.Top == gns.ScreenH) then
-        c.Draw = false;
+        c.TopR.Bottom = math.max(c.TopR.Bottom - 1, 0);
+        
+        if (c.TopR.Bottom == 0 and c.BottomR.Top == gns.ScreenH) then
+          c.Draw = false;
+        end
       end
     end
     
@@ -793,7 +804,13 @@ local function dialog_format_text(_text)
     end
   end
   
-  dialog_recalc_draw_area(nil, nil, nil, #d.Lines * CharHeight('A'));
+  -- figure widest line
+  local d_width = 120;
+  for i,line in ipairs(d.Lines) do
+    d_width = math.max(d_width, line.Width);
+  end
+  
+  dialog_recalc_draw_area(nil, nil, d_width, #d.Lines * CharHeight('A'));
   
   Timing.stop("Dlg_Format");
   --Log(string.format("III - Time elapsed: %.04f", Timer.Stop()));
@@ -1140,4 +1157,17 @@ function e_draw()
   DrawTextStr(gui_width, y, string.format("Is Game Hard: %s", is_game_diff_hard()));
   y = y + CharHeight('A');
   DrawTextStr(gui_width, y, string.format("Is Game Very Hard: %s", is_game_diff_very_hard()));
+  y = y + CharHeight('A');
+  
+  DrawTextStr(gui_width, y, "=====CINEMA INFO=====");
+  y = y + CharHeight('A');
+  
+  local c = Engine.Cinema;
+  
+  DrawTextStr(gui_width, y, string.format("Size: %i", c.Size));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("State: %i", c.State));
+  y = y + CharHeight('A');
+  DrawTextStr(gui_width, y, string.format("Draw: %s", c.Draw));
+  y = y + CharHeight('A');
 end
