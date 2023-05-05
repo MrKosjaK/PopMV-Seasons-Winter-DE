@@ -911,6 +911,8 @@ E_CMD_SET_CAMERA_PARAMS = 23; -- X, Z, ANGLE
 E_CMD_TRIGGER_ACTIVATE = 24; -- X, Z
 E_CMD_PERS_NEW_STATE = 25; -- INDEX, STATE
 E_CMD_TRIBE_SET_SKIN = 26; -- BASE_PN, NEW_PN, BETA?
+E_CMD_FOW_COVER = 27; -- X, Z, RADIUS, DARK?
+E_CMD_FOW_UNCOVER = 28; -- X, Z, RADIUS, DURATION (-1 == PERMANENT)
 
 
 -- table execution for commands
@@ -923,9 +925,9 @@ local E_FUNC_TABLE_EXECUTE =
   [4] = function(e, data) DISABLE_USER_INPUTS(); end,
   [5] = function(e, data) e.Variables[data[1]] = data[2]; end,
   [6] = function(e, data) e.ThingBuffers[data[1]] = nil; e.ThingBuffers[data[1]] = {}; end,
-  [7] = function(e, data) e_cache_map.XZ.X = data[6]; e_cache_map.XZ.Z = data[7]; local count = data[2]; ProcessMap(SQUARE, 0, 0, data[8], e_cache_map.Pos, function(me) ProcessMapWho(function(t) if (t.Type == data[3] or t.Type == -1) then if (t.Model == data[4] or t.Model == -1) then if (t.Owner == data[5] or t.Owner == -1) then e.ThingBuffers[data[1]][#e.ThingBuffers[data[1]] + 1] = t; count = count - 1 if (count > 0) then return true; else return false; end end end end return true; end); if (count > 0) then return true; else return false; end end); end,
+  [7] = function(e, data) e_cache_map.XZ.X = data[6]; e_cache_map.XZ.Z = data[7]; local count = data[2]; ProcessMap(SQUARE, 0, 0, data[8], e_cache_map.Pos, function(me) ProcessMapWho(me, function(t) if (t.Type == data[3] or data[3] == -1) then if (t.Model == data[4] or data[4] == -1) then if (t.Owner == data[5] or data[5] == -1) then e.ThingBuffers[data[1]][#e.ThingBuffers[data[1]] + 1] = t; count = count - 1 if (count > 0) then return true; else return false; end end end end return true; end); if (count > 0) then return true; else return false; end end); end,
   [8] = function(e, data) for i = 1, data[2] do local t = create_thing(data[3], data[4], data[5], data[6], data[7]); if (data[1] ~= -1) then e.ThingBuffers[data[1]][#e.ThingBuffers[data[1]] + 1] = t; end end end,
-  [9] = function(e, data) e_cache_map.XZ.X = data[5]; e_cache_map.XZ.Z = data[6]; local count = data[1]; ProcessMap(SQUARE, 0, 0, data[7], e_cache_map.Pos, function(me) ProcessMapWho(function(t) if (t.Type == data[2] or t.Type == -1) then if (t.Model == data[3] or t.Model == -1) then if (t.Owner == data[4] or t.Owner == -1) then delete_thing_type(t); count = count - 1 if (count > 0) then return true; else return false; end end end end return true; end); if (count > 0) then return true; else return false; end end); end,
+  [9] = function(e, data) e_cache_map.XZ.X = data[5]; e_cache_map.XZ.Z = data[6]; local count = data[1]; ProcessMap(SQUARE, 0, 0, data[7], e_cache_map.Pos, function(me) ProcessMapWho(me, function(t) if (t.Type == data[2] or data[2] == -1) then if (t.Model == data[3] or data[3] == -1) then if (t.Owner == data[4] or data[4] == -1) then delete_thing_type(t); count = count - 1 if (count > 0) then return true; else return false; end end end end return true; end); if (count > 0) then return true; else return false; end end); end,
   [10] = function(e, data) e_cache_map.XZ.X = data[4]; e_cache_map.XZ.Z = data[5]; process_shape_map_elements(e_cache_map.Pos, data[1], data[3], data[2], SHME_MODE_SET_PERM); end,
   [11] = function(e, data) e_cache_map.XZ.X = data[2]; e_cache_map.XZ.Z = data[3]; process_shape_map_elements(e_cache_map.Pos, 0, 0, data[1], SHME_MODE_REMOVE_PERM); end,
   [12] = function(e, data) set_players_allied(data[1], data[2]); end,
@@ -943,8 +945,8 @@ local E_FUNC_TABLE_EXECUTE =
   [24] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; trigger_trigger_thing_at_map_pos(e_cache_map.Pos); end,
   [25] = function(e, data) for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then set_person_new_state(t, data[2]); end end end,
   [26] = function(e, data) Skin(data[1], data[2]); Mods.setBetaTribe(data[1], data[3]); Mods.setBadgeBeta(data[1], data[3]); end,
-  [27] = function(e, data) end,
-  [28] = function(e, data) end,
+  [27] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); FoW.Cover(e_cache_c3d, data[3], data[4]); end,
+  [28] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); FoW.Uncover(e_cache_c3d, data[4], data[3]); end,
   [29] = function(e, data) end,
   [30] = function(e, data) end,
   [31] = function(e, data) end,

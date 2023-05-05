@@ -12,8 +12,8 @@ function _OnTurn(turn)
     -- set cinema rectangles to fill entire screen
     e_queue_command(E_CMD_CINEMA_SET_SIZE, 0, bit32.rshift(gns.ScreenH, 1));
     e_queue_command(E_CMD_CINEMA_RAISE, 0, true);
-    e_queue_command(E_CMD_SET_CAMERA_PARAMS, 0, 18, 232, 1769);
-    e_queue_command(E_CMD_SET_CAMERA_PARAMS, 16, 18, 232, 1769);
+    e_queue_command(E_CMD_SET_CAMERA_PARAMS, 0, 19, 233, 1769);
+    e_queue_command(E_CMD_SET_CAMERA_PARAMS, 16, 19, 233, 1769);
     e_queue_command(E_CMD_TRIBE_SET_SKIN, 0, 0, 0, true);
     e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_BLUE, 97, 207);
     e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_RED, 101, 119);
@@ -102,9 +102,33 @@ function _OnTurn(turn)
       -- spawn red drum tower.
       local t; -- dummy
       CREATE_THING_WITH_PARAMS4(t, T_BUILDING, M_BUILDING_DRUM_TOWER, TRIBE_RED, xz_to_c3d(10, 254), 3, 0, 2, -1);
-      e_queue_command(E_CMD_CINEMA_SET_SIZE, 0, bit32.rshift(gns.ScreenH, 3));
+      
+      -- spawn camp fire
+      create_local_thing(T_INTERNAL, M_INTERNAL_GUARD_POST_DISPLAY, TRIBE_BLUE, xz_to_c3d(14, 252));
+      
+      -- delete wood piles
+      e_queue_command(E_CMD_DELETE_THINGS, 0, 6, T_SCENERY, M_SCENERY_WOOD_PILE, -1, 14, 252, 0);
+      
+      -- reveal screen
+      e_queue_command(E_CMD_CINEMA_SET_SIZE, 12, bit32.rshift(gns.ScreenH, 3));
+      
+      -- story teller starting speech.
+      e_queue_command(E_CMD_QUEUE_MSG, 64, Lang.get_str("StrDlgStoryTellerText3"), "Story Teller", 1, 170, 3, 64*3);
+      e_queue_command(E_CMD_QUEUE_MSG, 112, Lang.get_str("StrDlgStoryTellerText4"), "Story Teller", 1, 170, 3, 64*3);
+      
+      -- transition to another place with Tiyao's shaman
+      e_queue_command(E_CMD_CINEMA_SET_SIZE, 182, bit32.rshift(gns.ScreenH, 1));
+      
+      -- jump camera to a new place
+      e_queue_command(E_CMD_SET_CAMERA_PARAMS, 228, 91, 221, 1911);
+      e_queue_command(E_CMD_FOW_COVER, 230, 14, 252, 16, true);
+      e_queue_command(E_CMD_CINEMA_SET_SIZE, 249, bit32.rshift(gns.ScreenH, 3));
+      e_queue_command(E_CMD_SET_VARIABLE, 249, 1, 5);
+      e_queue_command(E_CMD_STOP_EXECUTION, 250);
       
       e_start();
     end
+  elseif (e_get_var(1) == 5) then
+    e_set_var(1, 6);
   end
 end
