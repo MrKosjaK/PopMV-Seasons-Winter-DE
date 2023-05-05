@@ -2,6 +2,7 @@
 Timing = require(get_script_dir() .. "D_Timer"); -- Timer debugging.
 
 require(get_script_dir() .. "Globals"); -- Globals
+require(get_script_dir() .. "LbMap"); -- Additional map functions
 require(get_script_dir() .. "Engine"); -- Main Engine
 require(get_script_dir() .. "Badges"); -- Achievement/Badges system
 

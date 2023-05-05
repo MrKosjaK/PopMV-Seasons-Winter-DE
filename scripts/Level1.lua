@@ -2,6 +2,7 @@ require(get_script_dir() .. "Common");
 local Lang = require(get_script_dir() .. "Language\\LangLvl1");
 
 e_allocate_thing_buffers(3);
+e_allocate_variables(16);
 
 function _OnTurn(turn)
   if (is_first_init()) then
@@ -12,6 +13,7 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_CINEMA_SET_SIZE, 0, bit32.rshift(gns.ScreenH, 1));
     e_queue_command(E_CMD_CINEMA_RAISE, 0, true);
     e_queue_command(E_CMD_SET_CAMERA_PARAMS, 0, 18, 232, 1769);
+    e_queue_command(E_CMD_SET_CAMERA_PARAMS, 16, 18, 232, 1769);
     e_queue_command(E_CMD_TRIBE_SET_SKIN, 0, 0, 0, true);
     e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_BLUE, 97, 207);
     e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_RED, 101, 119);
@@ -39,7 +41,6 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_SPAWN_THINGS, 146, 1, 1, T_PERSON, M_PERSON_RELIGIOUS, TRIBE_RED, 19, 227);
     e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 146);
     e_queue_command(E_CMD_SET_NEXT_COMMAND, 146, CMD_GOTO_POINT, 18, 240);
-    e_queue_command(E_CMD_SET_NEXT_COMMAND, 146, CMD_GOTO_POINT, 14, 252);
     e_queue_command(E_CMD_SET_NEXT_COMMAND, 146, CMD_GOTO_POINT, 16, 254);
     e_queue_command(E_CMD_DISPATCH_COMMANDS, 146, 1);
     
@@ -47,7 +48,6 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_SPAWN_THINGS, 162, 2, 3, T_PERSON, M_PERSON_BRAVE, TRIBE_RED, 19, 227);
     e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 162);
     e_queue_command(E_CMD_SET_NEXT_COMMAND, 162, CMD_GOTO_POINT, 18, 240);
-    e_queue_command(E_CMD_SET_NEXT_COMMAND, 162, CMD_GOTO_POINT, 14, 252);
     e_queue_command(E_CMD_SET_NEXT_COMMAND, 162, CMD_GOTO_POINT, 12, 252);
     e_queue_command(E_CMD_DISPATCH_COMMANDS, 162, 2);
     
@@ -56,15 +56,55 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_SET_NEXT_COMMAND, 174, CMD_GOTO_POINT, 18, 240);
     e_queue_command(E_CMD_SET_NEXT_COMMAND, 174, CMD_GOTO_POINT, 14, 250);
     e_queue_command(E_CMD_DISPATCH_COMMANDS, 174, 3);
-    
-    -- story teller starts talking
-    e_queue_command(E_CMD_QUEUE_MSG, 278, Lang.get_str("StrDlgStoryTellerText1"), "Story Teller", 1, 170, 3, 64*3);
-    e_queue_command(E_CMD_QUEUE_MSG, 345, Lang.get_str("StrDlgStoryTellerText2"), "Story Teller", 1, 170, 3, 64*3);
-    e_queue_command(E_CMD_QUEUE_MSG, 402, Lang.get_str("StrDlgBravesText1"), "Folks", 1, 170, 4, 64*2);
-    e_queue_command(E_CMD_CINEMA_FADE, 402, false);
-    e_queue_command(E_CMD_STOP_EXECUTION, 403);
+    e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 174);
+    e_queue_command(E_CMD_SET_VARIABLE, 174, 1, 1);
+    e_queue_command(E_CMD_STOP_EXECUTION, 175);
     
     -- start engine
     e_start();
+  end
+  
+  -- first part
+  if (e_get_var(1) == 1) then
+    -- check for priest's arrival at point
+    if (does_map_xz_contain_a_thing(T_PERSON, M_PERSON_RELIGIOUS, -1, 16, 254)) then
+      e_set_var(1, 2);
+      
+      -- story teller starts talking
+      e_queue_command(E_CMD_QUEUE_MSG, 12, Lang.get_str("StrDlgStoryTellerText1"), "Story Teller", 1, 170, 3, 64*3);
+      e_queue_command(E_CMD_QUEUE_MSG, 70, Lang.get_str("StrDlgStoryTellerText2"), "Story Teller", 1, 170, 3, 64*3);
+      e_queue_command(E_CMD_QUEUE_MSG, 145, Lang.get_str("StrDlgBravesText1"), "Folks", 1, 170, 4, 64*2);
+    
+      -- braves chop trees and bring to point
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 166, CMD_GET_WOOD, 12, 4);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 166, CMD_DROP_WOOD, 14, 252);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 166, 2);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 166);
+      
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 168, CMD_GET_WOOD, 24, 244);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 168, CMD_DROP_WOOD, 14, 252);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 168, 3);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 168);
+      
+      -- raise cinematic stuff
+      e_queue_command(E_CMD_CINEMA_SET_SIZE, 174, bit32.rshift(gns.ScreenH, 1));
+      e_queue_command(E_CMD_SET_VARIABLE, 174, 1, 3);
+      e_queue_command(E_CMD_QUEUE_MSG, 229, Lang.get_str("StrDlgGeneralText4"), nil, nil, nil, 0, 256);
+      e_queue_command(E_CMD_STOP_EXECUTION, 230);
+      
+      e_start();
+    end
+  elseif (e_get_var(1) == 3) then
+    -- check for 6 woodpiles at specific point, then spawn tower and campfire.
+    if (count_things_at_map_xz(T_SCENERY, M_SCENERY_WOOD_PILE, -1, 14, 252) >= 6) then
+      e_set_var(1, 4);
+      
+      -- spawn red drum tower.
+      local t; -- dummy
+      CREATE_THING_WITH_PARAMS4(t, T_BUILDING, M_BUILDING_DRUM_TOWER, TRIBE_RED, xz_to_c3d(10, 254), 3, 0, 2, -1);
+      e_queue_command(E_CMD_CINEMA_SET_SIZE, 0, bit32.rshift(gns.ScreenH, 3));
+      
+      e_start();
+    end
   end
 end
