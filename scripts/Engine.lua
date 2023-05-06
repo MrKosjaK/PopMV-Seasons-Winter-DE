@@ -1066,8 +1066,8 @@ function e_stop()
   Engine.IsExecuting = false;
 end
 
-function e_toggle_pause()
-  self.IsExecuting = not self.IsExecuting;
+function e_is_ready()
+  return (not Engine.IsExecuting);
 end
 
 function e_allocate_thing_buffers(_amount)
@@ -1100,7 +1100,7 @@ function e_debug_keys_handle(k)
   end
   
   if (k == LB_KEY_3) then
-    e_toggle_pause();
+    --e_toggle_pause();
   end
   
   if (k == LB_KEY_4) then

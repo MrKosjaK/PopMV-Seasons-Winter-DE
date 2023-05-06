@@ -13,14 +13,24 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_CINEMA_SET_SIZE, 0, bit32.rshift(gns.ScreenH, 1));
     e_queue_command(E_CMD_CINEMA_RAISE, 0, true);
     e_queue_command(E_CMD_SET_CAMERA_PARAMS, 0, 19, 233, 1769);
+    
+    -- uncover some fog while it's black screen
+    --e_queue_command(E_CMD_FOW_COVER, 0, 0, 0, 8, true);
+    e_queue_command(E_CMD_FOW_UNCOVER, 2, 18, 234, 4, -1);
+    e_queue_command(E_CMD_FOW_UNCOVER, 3, 18, 240, 5, -1);
+    e_queue_command(E_CMD_FOW_UNCOVER, 4, 14, 252, 6, -1);
+    
     e_queue_command(E_CMD_SET_CAMERA_PARAMS, 16, 19, 233, 1769);
     e_queue_command(E_CMD_TRIBE_SET_SKIN, 0, 0, 0, true);
-    e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_BLUE, 97, 207);
-    e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_RED, 101, 119);
+    --e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_BLUE, 97, 207);
+    --e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_RED, 101, 119);
     
     -- misc stuff
-    PLAYER_IDX_2_PTR(TRIBE_BLUE).DeadCount = 0;
-    PLAYER_IDX_2_PTR(TRIBE_RED).DeadCount = 0;
+    SET_REINCARNATION(0, TRIBE_BLUE);
+    SET_REINCARNATION(0, TRIBE_RED);
+    SET_REINCARNATION(0, TRIBE_YELLOW);
+    game_disable_wins();
+    game_disable_loses();
     set_number_of_one_shots_of_a_spell_player_has(TRIBE_BLUE, M_SPELL_INSECT_PLAGUE, 4);
     
     -- alliances
@@ -121,14 +131,26 @@ function _OnTurn(turn)
       
       -- jump camera to a new place
       e_queue_command(E_CMD_SET_CAMERA_PARAMS, 228, 91, 221, 1911);
-      e_queue_command(E_CMD_FOW_COVER, 230, 14, 252, 16, true);
-      e_queue_command(E_CMD_CINEMA_SET_SIZE, 249, bit32.rshift(gns.ScreenH, 3));
       e_queue_command(E_CMD_SET_VARIABLE, 249, 1, 5);
       e_queue_command(E_CMD_STOP_EXECUTION, 250);
       
       e_start();
     end
   elseif (e_get_var(1) == 5) then
-    e_set_var(1, 6);
+    if (e_is_ready()) then
+      e_set_var(1, 6);
+      
+      -- uncover fog
+      e_queue_command(E_CMD_FOW_UNCOVER, 0, 96, 206, 5, -1);
+      e_queue_command(E_CMD_FOW_UNCOVER, 1, 90, 220, 6, -1);
+      e_queue_command(E_CMD_CINEMA_SET_SIZE, 2, bit32.rshift(gns.ScreenH, 3));
+      
+      -- spawn Tiyao's followers and herself as well
+      
+      
+      e_queue_command(E_CMD_STOP_EXECUTION, 250);
+    
+      e_start();
+    end
   end
 end
