@@ -9,6 +9,10 @@ local a =
   StrDlgStoryTellerText3 = "Today i'll be reading you a story of a humble woman leading her tribe into a new venture...",
   StrDlgStoryTellerText4 = "Ahem... Chapter 1... Tiyao's search for forbidden knowledge has began somewhere in northean areas of Blue region...",
   StrDlgBravesText1 = "Roger that!",
+  StrDlgBravesText2 = "As You wish, almighty Tiyao!",
+  StrDlgTiyaoText1 = "We're getting closer to our target. Although, I'm more than sure Ikani or Chumara are going to get in our way.",
+  StrDlgTiyaoText2 = "It's a good idea to prepare first before we strike our enemy.",
+  StrDlgTiyaoText3 = "Get to work my followers! This is your time to shine! We'll show them what we made of.",
 };
 
 function a.get_str(key)

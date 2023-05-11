@@ -21,7 +21,8 @@ function _OnTurn(turn)
     e_queue_command(E_CMD_FOW_UNCOVER, 4, 14, 252, 6, -1);
     
     e_queue_command(E_CMD_SET_CAMERA_PARAMS, 16, 19, 233, 1769);
-    e_queue_command(E_CMD_TRIBE_SET_SKIN, 0, 0, 0, true);
+    e_queue_command(E_CMD_TRIBE_SET_SKIN, 0, 0, 0);
+    e_queue_command(E_CMD_TRIBE_SET_BETA, 0, 0, true);
     --e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_BLUE, 97, 207);
     --e_queue_command(E_CMD_SPAWN_THINGS, 0, -1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_RED, 101, 119);
     
@@ -97,6 +98,9 @@ function _OnTurn(turn)
       e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 168);
       
       -- raise cinematic stuff
+      e_queue_command(E_CMD_CLEAR_THING_BUFFER, 174, 1);
+      e_queue_command(E_CMD_CLEAR_THING_BUFFER, 174, 2);
+      e_queue_command(E_CMD_CLEAR_THING_BUFFER, 174, 3);
       e_queue_command(E_CMD_CINEMA_SET_SIZE, 174, bit32.rshift(gns.ScreenH, 1));
       e_queue_command(E_CMD_SET_VARIABLE, 174, 1, 3);
       e_queue_command(E_CMD_QUEUE_MSG, 229, Lang.get_str("StrDlgGeneralText4"), nil, nil, nil, 0, 256);
@@ -146,10 +150,55 @@ function _OnTurn(turn)
       e_queue_command(E_CMD_CINEMA_SET_SIZE, 2, bit32.rshift(gns.ScreenH, 3));
       
       -- spawn Tiyao's followers and herself as well
+      e_queue_command(E_CMD_SPAWN_THINGS, 8, 1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_BLUE, 97, 207);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 9, CMD_GOTO_POINT, 90, 220);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 9, 1);
       
+      e_queue_command(E_CMD_SPAWN_THINGS, 24, 2, 8, T_PERSON, M_PERSON_BRAVE, TRIBE_BLUE, 97, 207);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 25, 2);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 25);
       
-      e_queue_command(E_CMD_STOP_EXECUTION, 250);
+      -- speech
+      e_queue_command(E_CMD_QUEUE_MSG, 32, Lang.get_str("StrDlgTiyaoText1"), "Tiyao", 1, 170, 10, 64*2);
+      e_queue_command(E_CMD_QUEUE_MSG, 120, Lang.get_str("StrDlgTiyaoText2"), "Tiyao", 1, 170, 10, 64*2);
+      e_queue_command(E_CMD_QUEUE_MSG, 160, Lang.get_str("StrDlgTiyaoText3"), "Tiyao", 1, 170, 10, 64*2);
+      e_queue_command(E_CMD_QUEUE_MSG, 190, Lang.get_str("StrDlgBravesText2"), "Followers", 1, 170, 10, 64*2);
+      
+      e_queue_command(E_CMD_CLEAR_THING_BUFFER, 230, 1);
+      e_queue_command(E_CMD_CLEAR_THING_BUFFER, 230, 2);
+      e_queue_command(E_CMD_CINEMA_SET_SIZE, 230, bit32.rshift(gns.ScreenH, 1));
+      e_queue_command(E_CMD_SET_VARIABLE, 312, 1, 7);
+      e_queue_command(E_CMD_STOP_EXECUTION, 313);
     
+      e_start();
+    end
+  elseif (e_get_var(1) == 7) then
+    if (e_is_ready()) then
+      e_set_var(1, 8);
+      
+      -- move camera
+      e_queue_command(E_CMD_SET_CAMERA_PARAMS, 0, 117, 103, 1911);
+      e_queue_command(E_CMD_TRIBE_SET_SKIN, 0, 1, 0);
+      e_queue_command(E_CMD_FOW_UNCOVER, 1, 116, 102, 5, -1);
+      
+      -- spawn chumara and ikani meanwhile, make them walk to interest points then talk.
+      e_queue_command(E_CMD_SPAWN_THINGS, 2, 1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_YELLOW, 139, 105);
+      e_queue_command(E_CMD_SPAWN_THINGS, 2, 2, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_RED, 107, 115);
+      
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 3, CMD_GOTO_POINT, 131, 103);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 3, CMD_GOTO_POINT, 125, 103);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 3, CMD_GOTO_POINT, 119, 103);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 3, 1);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 3);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 3, CMD_GOTO_POINT, 109, 111);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 3, CMD_GOTO_POINT, 111, 107);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 3, CMD_GOTO_POINT, 115, 103);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 3, 2);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 3);
+      
+      e_queue_command(E_CMD_CINEMA_SET_SIZE, 12, bit32.rshift(gns.ScreenH, 3));
+      e_queue_command(E_CMD_STOP_EXECUTION, 240);
+      
       e_start();
     end
   end

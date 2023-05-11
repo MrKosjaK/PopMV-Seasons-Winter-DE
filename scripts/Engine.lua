@@ -910,9 +910,10 @@ E_CMD_MUSIC_STOP = 22; -- NO PARAMS
 E_CMD_SET_CAMERA_PARAMS = 23; -- X, Z, ANGLE
 E_CMD_TRIGGER_ACTIVATE = 24; -- X, Z
 E_CMD_PERS_NEW_STATE = 25; -- INDEX, STATE
-E_CMD_TRIBE_SET_SKIN = 26; -- BASE_PN, NEW_PN, BETA?
+E_CMD_TRIBE_SET_SKIN = 26; -- BASE_PN, NEW_PN
 E_CMD_FOW_COVER = 27; -- X, Z, RADIUS, DARK?
 E_CMD_FOW_UNCOVER = 28; -- X, Z, RADIUS, DURATION (-1 == PERMANENT)
+E_CMD_TRIBE_SET_BETA = 29; -- PN, BETA?
 
 
 -- table execution for commands
@@ -944,10 +945,10 @@ local E_FUNC_TABLE_EXECUTE =
   [23] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); Camera.setCoords(e_cache_c3d); Camera.setAngle(data[3]); end,
   [24] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; trigger_trigger_thing_at_map_pos(e_cache_map.Pos); end,
   [25] = function(e, data) for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then set_person_new_state(t, data[2]); end end end,
-  [26] = function(e, data) Skin(data[1], data[2]); Mods.setBetaTribe(data[1], data[3]); Mods.setBadgeBeta(data[1], data[3]); end,
+  [26] = function(e, data) Skin(data[1], data[2]); end,
   [27] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); FoW.Cover(e_cache_c3d, data[3], data[4]); end,
   [28] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); FoW.Uncover(e_cache_c3d, data[4], data[3]); end,
-  [29] = function(e, data) end,
+  [29] = function(e, data) Mods.setBetaTribe(data[1], data[2]); Mods.setBadgeBeta(data[1], data[2]); end,
   [30] = function(e, data) end,
   [31] = function(e, data) end,
   [32] = function(e, data) end,
@@ -1080,6 +1081,10 @@ function e_allocate_variables(_amount)
   for i = 1, _amount do
     Engine.Variables[i] = 0;
   end
+end
+
+function e_thing_buffer_to_table(_idx, _tabl)
+  
 end
 
 function e_set_var(_idx, _value)
