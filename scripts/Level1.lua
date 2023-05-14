@@ -82,6 +82,13 @@ function _OnTurn(turn)
       e_set_var(1, 2);
       
       -- story teller starts talking
+      e_queue_command(E_CMD_PERS_SET_ANGLE, 9, 1, 15, 251);
+      e_queue_command(E_CMD_PERS_SET_ANGLE, 9, 2, 17, 255);
+      e_queue_command(E_CMD_PERS_SET_ANGLE, 9, 3, 17, 255);
+      e_queue_command(E_CMD_PERS_NEW_STATE, 10, 2, S_PERSON_STAND_FOR_TIME);
+      e_queue_command(E_CMD_PERS_NEW_STATE, 10, 3, S_PERSON_STAND_FOR_TIME);
+      e_queue_command(E_CMD_PERS_SET_COUNT, 11, 2, 156);
+      e_queue_command(E_CMD_PERS_SET_COUNT, 11, 3, 156);
       e_queue_command(E_CMD_QUEUE_MSG, 12, Lang.get_str("StrDlgStoryTellerText1"), "Story Teller", 1, 170, 3, 64*3);
       e_queue_command(E_CMD_QUEUE_MSG, 70, Lang.get_str("StrDlgStoryTellerText2"), "Story Teller", 1, 170, 3, 64*3);
       e_queue_command(E_CMD_QUEUE_MSG, 145, Lang.get_str("StrDlgBravesText1"), "Folks", 1, 170, 4, 64*2);
@@ -195,9 +202,28 @@ function _OnTurn(turn)
       e_queue_command(E_CMD_SET_NEXT_COMMAND, 3, CMD_GOTO_POINT, 115, 103);
       e_queue_command(E_CMD_DISPATCH_COMMANDS, 3, 2);
       e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 3);
-      
       e_queue_command(E_CMD_CINEMA_SET_SIZE, 12, bit32.rshift(gns.ScreenH, 3));
-      e_queue_command(E_CMD_STOP_EXECUTION, 240);
+      
+      -- them talking sum smack
+      e_queue_command(E_CMD_QUEUE_MSG, 80, Lang.get_str("StrDlgChumaraText1"), "Chumara", 1, 170, 4, 64*2);
+      e_queue_command(E_CMD_QUEUE_MSG, 80, Lang.get_str("StrDlgIkaniText1"), "Ikani", 1, 170, 2, 64*2);
+      e_queue_command(E_CMD_QUEUE_MSG, 80, Lang.get_str("StrDlgChumaraText2"), "Chumara", 1, 170, 4, 64);
+      e_queue_command(E_CMD_QUEUE_MSG, 80, Lang.get_str("StrDlgChumaraText3"), "Chumara", 1, 170, 4, 64*2);
+      e_queue_command(E_CMD_QUEUE_MSG, 80, Lang.get_str("StrDlgChumaraText4"), "Chumara", 1, 170, 4, 64*2);
+      e_queue_command(E_CMD_QUEUE_MSG, 80, Lang.get_str("StrDlgIkaniText2"), "Ikani", 1, 170, 2, 64*2);
+      e_queue_command(E_CMD_QUEUE_MSG, 80, Lang.get_str("StrDlgChumaraText5"), "Chumara", 1, 170, 4, 64*2);
+      
+      -- Ikani walks away
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 400, CMD_GOTO_POINT, 125, 103);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 400, CMD_GOTO_POINT, 131, 103);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 400, CMD_GOTO_POINT, 139, 105);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 400, 1);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 400);
+      
+      -- passive aggressive moment
+      e_queue_command(E_CMD_QUEUE_MSG, 501, Lang.get_str("StrDlgIkaniText3"), "Ikani", 1, 170, 2, 64*2);
+      
+      e_queue_command(E_CMD_STOP_EXECUTION, 502);
       
       e_start();
     end

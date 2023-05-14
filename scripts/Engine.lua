@@ -914,6 +914,8 @@ E_CMD_TRIBE_SET_SKIN = 26; -- BASE_PN, NEW_PN
 E_CMD_FOW_COVER = 27; -- X, Z, RADIUS, DARK?
 E_CMD_FOW_UNCOVER = 28; -- X, Z, RADIUS, DURATION (-1 == PERMANENT)
 E_CMD_TRIBE_SET_BETA = 29; -- PN, BETA?
+E_CMD_PERS_SET_ANGLE = 30; -- INDEX, X, Z
+E_CMD_PERS_SET_COUNT = 31; -- INDEX, COUNT
 
 
 -- table execution for commands
@@ -949,8 +951,8 @@ local E_FUNC_TABLE_EXECUTE =
   [27] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); FoW.Cover(e_cache_c3d, data[3], data[4]); end,
   [28] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); FoW.Uncover(e_cache_c3d, data[4], data[3]); end,
   [29] = function(e, data) Mods.setBetaTribe(data[1], data[2]); Mods.setBadgeBeta(data[1], data[2]); end,
-  [30] = function(e, data) end,
-  [31] = function(e, data) end,
+  [30] = function(e, data) e_cache_map.XZ.X = data[2]; e_cache_map.XZ.Z = data[3]; map_idx_to_world_coord2d(e_cache_map.Pos, e_cache_c2d); for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then t.Move.CurrAngleXZ = get_angle_xz(t.Pos.D2, e_cache_c2d); t.AngleXZ = get_angle_xz(t.Pos.D2, e_cache_c2d); end end end,
+  [31] = function(e, data) for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then t.u.Pers.Count = data[2]; end end end,
   [32] = function(e, data) end,
 };
 
