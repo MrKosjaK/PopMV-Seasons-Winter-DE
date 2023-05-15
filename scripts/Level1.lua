@@ -1,7 +1,7 @@
 require(get_script_dir() .. "Common");
 local Lang = require(get_script_dir() .. "Language\\LangLvl1");
 
-e_allocate_thing_buffers(3);
+e_allocate_thing_buffers(7);
 e_allocate_variables(16);
 
 function _OnTurn(turn)
@@ -157,13 +157,23 @@ function _OnTurn(turn)
       e_queue_command(E_CMD_CINEMA_SET_SIZE, 2, bit32.rshift(gns.ScreenH, 3));
       
       -- spawn Tiyao's followers and herself as well
-      e_queue_command(E_CMD_SPAWN_THINGS, 8, 1, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_BLUE, 97, 207);
+      e_queue_command(E_CMD_SPAWN_THINGS, 8, 3, 1, T_PERSON, M_PERSON_MEDICINE_MAN, TRIBE_BLUE, 97, 207);
       e_queue_command(E_CMD_SET_NEXT_COMMAND, 9, CMD_GOTO_POINT, 90, 220);
-      e_queue_command(E_CMD_DISPATCH_COMMANDS, 9, 1);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 9, 3);
       
-      e_queue_command(E_CMD_SPAWN_THINGS, 24, 2, 8, T_PERSON, M_PERSON_BRAVE, TRIBE_BLUE, 97, 207);
-      e_queue_command(E_CMD_DISPATCH_COMMANDS, 25, 2);
-      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 25);
+      e_queue_command(E_CMD_SPAWN_THINGS, 24, 4, 2, T_PERSON, M_PERSON_BRAVE, TRIBE_BLUE, 97, 207);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 25, 4);
+      
+      e_queue_command(E_CMD_SPAWN_THINGS, 26, 5, 2, T_PERSON, M_PERSON_BRAVE, TRIBE_BLUE, 97, 207);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 27, 5);
+      
+      e_queue_command(E_CMD_SPAWN_THINGS, 28, 6, 2, T_PERSON, M_PERSON_BRAVE, TRIBE_BLUE, 97, 207);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 29, 6);
+      
+      e_queue_command(E_CMD_SPAWN_THINGS, 30, 7, 2, T_PERSON, M_PERSON_BRAVE, TRIBE_BLUE, 97, 207);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 31, 7);
+      
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 31);
       
       -- speech
       e_queue_command(E_CMD_QUEUE_MSG, 32, Lang.get_str("StrDlgTiyaoText1"), "Tiyao", 1, 170, 10, 64*2);
@@ -171,11 +181,9 @@ function _OnTurn(turn)
       e_queue_command(E_CMD_QUEUE_MSG, 160, Lang.get_str("StrDlgTiyaoText3"), "Tiyao", 1, 170, 10, 64*2);
       e_queue_command(E_CMD_QUEUE_MSG, 190, Lang.get_str("StrDlgBravesText2"), "Followers", 1, 170, 10, 64*2);
       
-      e_queue_command(E_CMD_CLEAR_THING_BUFFER, 230, 1);
-      e_queue_command(E_CMD_CLEAR_THING_BUFFER, 230, 2);
       e_queue_command(E_CMD_CINEMA_SET_SIZE, 230, bit32.rshift(gns.ScreenH, 1));
-      e_queue_command(E_CMD_SET_VARIABLE, 312, 1, 7);
-      e_queue_command(E_CMD_STOP_EXECUTION, 313);
+      e_queue_command(E_CMD_SET_VARIABLE, 281, 1, 7);
+      e_queue_command(E_CMD_STOP_EXECUTION, 282);
     
       e_start();
     end
@@ -214,16 +222,56 @@ function _OnTurn(turn)
       e_queue_command(E_CMD_QUEUE_MSG, 80, Lang.get_str("StrDlgChumaraText5"), "Chumara", 1, 170, 4, 64*2);
       
       -- Ikani walks away
-      e_queue_command(E_CMD_SET_NEXT_COMMAND, 400, CMD_GOTO_POINT, 125, 103);
-      e_queue_command(E_CMD_SET_NEXT_COMMAND, 400, CMD_GOTO_POINT, 131, 103);
-      e_queue_command(E_CMD_SET_NEXT_COMMAND, 400, CMD_GOTO_POINT, 139, 105);
-      e_queue_command(E_CMD_DISPATCH_COMMANDS, 400, 1);
-      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 400);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 420, CMD_GOTO_POINT, 125, 103);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 420, CMD_GOTO_POINT, 131, 103);
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 420, CMD_GOTO_POINT, 139, 105);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 420, 1);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 420);
       
       -- passive aggressive moment
       e_queue_command(E_CMD_QUEUE_MSG, 501, Lang.get_str("StrDlgIkaniText3"), "Ikani", 1, 170, 2, 64*2);
+      e_queue_command(E_CMD_SET_VARIABLE, 540, 1, 9);
+      e_queue_command(E_CMD_CINEMA_SET_SIZE, 540, bit32.rshift(gns.ScreenH, 1));
       
-      e_queue_command(E_CMD_STOP_EXECUTION, 502);
+      -- task player's units to build some stuff
+      e_queue_command(E_CMD_PLACE_BLDG_SHAPE, 541, M_BUILDING_DRUM_TOWER, TRIBE_BLUE, G_RANDOM(4), 100, 232); -- tower plan
+      e_queue_command(E_CMD_PLACE_BLDG_SHAPE, 542, M_BUILDING_TEPEE, TRIBE_BLUE, G_RANDOM(4), 92, 228); -- first hut
+      e_queue_command(E_CMD_PLACE_BLDG_SHAPE, 543, M_BUILDING_TEPEE, TRIBE_BLUE, G_RANDOM(4), 92, 236); -- second hut
+      e_queue_command(E_CMD_PLACE_BLDG_SHAPE, 544, M_BUILDING_TEPEE, TRIBE_BLUE, G_RANDOM(4), 106, 236); -- third hut
+      
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 545, CMD_BUILD_BUILDING, 100, 232);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 545, 4);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 545);
+      
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 546, CMD_BUILD_BUILDING, 92, 228);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 546, 5);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 546);
+      
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 547, CMD_BUILD_BUILDING, 92, 236);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 547, 6);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 547);
+      
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 548, CMD_BUILD_BUILDING, 106, 236);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 548, 7);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 548);
+      
+      e_queue_command(E_CMD_SET_NEXT_COMMAND, 549, CMD_GOTO_POINT, 98, 236);
+      e_queue_command(E_CMD_DISPATCH_COMMANDS, 549, 3);
+      e_queue_command(E_CMD_CLEAR_COMMAND_CACHE, 549);
+      
+      e_queue_command(E_CMD_STOP_EXECUTION, 582);
+      
+      e_start();
+    end
+  elseif (e_get_var(1) == 9) then
+    if (e_is_ready()) then
+      e_set_var(1, 10);
+      
+      e_queue_command(E_CMD_SET_CAMERA_PARAMS, 0, 99, 237, 493);
+      e_queue_command(E_CMD_CINEMA_FADE, 12, false);
+      e_queue_command(E_CMD_SHOW_PANEL, 68);
+      
+      e_queue_command(E_CMD_STOP_EXECUTION, 69);
       
       e_start();
     end
