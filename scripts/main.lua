@@ -2,13 +2,12 @@ MVMod().DarkFog = true; -- enforce.
 MVMod().RegenFog = true; -- enforce.
 FENEW.hideNewGame();
 FENEW.hideTutorial();
+FoW.UncoverReincSite(false);
 Difficulty.Process(false);
 Mods.Lock();
 
 function OnScript(level)
-  if (level == 1) then
-    AddScript("Level1.lua");
-  end
+  AddScript(string.format("Level%i.lua", level));
 end
 
 function OnFrameCredits()

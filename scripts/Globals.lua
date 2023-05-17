@@ -50,7 +50,7 @@ function game_disable_loses()
   gsm.Flags = bit32.bxor(gsm.Flags, GSMI_NO_LOSE);
 end
 
-function reset_skins_defaults()
+--[[function reset_skins_defaults()
   Skin(0, 0);
   Skin(1, 1);
   Skin(2, 2);
@@ -63,4 +63,4 @@ function reset_skins_defaults()
   Mods.setBadgeBeta(1, false);
   Mods.setBadgeBeta(2, false);
   Mods.setBadgeBeta(3, false);
-end
+end]]

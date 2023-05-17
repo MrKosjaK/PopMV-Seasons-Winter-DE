@@ -9,7 +9,7 @@ require(get_script_dir() .. "Badges"); -- Achievement/Badges system
 
 function OnRegenerate(level)
   Timing.start("OnRegenerate");
-  reset_skins_defaults();
+  --reset_skins_defaults();
   if _OnRegenerate ~= nil then _OnRegenerate(level); end
   Timing.stop("OnRegenerate");
 end
@@ -41,6 +41,7 @@ end
 
 function OnThing(t_thing)
   Timing.start("OnThing");
+  e_handle_OnThing(t_thing);
   if _OnThing ~= nil then _OnThing(t_thing); end
   Timing.stop("OnThing");
 end

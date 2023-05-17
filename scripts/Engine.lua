@@ -54,6 +54,14 @@ local Engine =
     }
   },
   
+  Skins =
+  {
+    {0, BANK_NORMAL, BLOCKS_BANK_DEFAULT, 0, false}, 
+    {1, BANK_NORMAL, BLOCKS_BANK_DEFAULT, 1, false},
+    {2, BANK_NORMAL, BLOCKS_BANK_DEFAULT, 2, false},
+    {3, BANK_NORMAL, BLOCKS_BANK_DEFAULT, 3, false}
+  },
+  
   IsPanelShown = true,
   IsExecuting = false,
   Turn = 0
@@ -390,6 +398,9 @@ local e_cache_cti = CmdTargetInfo.new();
 local e_cache_cmd = {}; -- fucking stupid ass old 1.01 i hate you so fucking much.
 local e_cache_t = nil;
 local e_cache_me = nil;
+local e_cache_ti = nil;
+local e_cache_pi = player_info();
+local e_cache_wi = world_info();
 
 local function construct_command_buffer()
   Timing.start("CommandBufferConstruct");
@@ -910,12 +921,13 @@ E_CMD_MUSIC_STOP = 22; -- NO PARAMS
 E_CMD_SET_CAMERA_PARAMS = 23; -- X, Z, ANGLE
 E_CMD_TRIGGER_ACTIVATE = 24; -- X, Z
 E_CMD_PERS_NEW_STATE = 25; -- INDEX, STATE
-E_CMD_TRIBE_SET_SKIN = 26; -- BASE_PN, NEW_PN
+E_CMD_TRIBE_SET_SKIN_PARAMS = 26; -- BASE_PN, NEW_PN, BANK_NUM, BLOCKS_BANK_NUM, BADGE_NUM, BADGE_BETA
 E_CMD_FOW_COVER = 27; -- X, Z, RADIUS, DARK?
 E_CMD_FOW_UNCOVER = 28; -- X, Z, RADIUS, DURATION (-1 == PERMANENT)
-E_CMD_TRIBE_SET_BETA = 29; -- PN, BETA?
+E_CMD_TRIBE_SET_DISPLAY_PI_PARAMS = 29; -- PN, COLOR, LIGHTCOLOR, DARKCOLOR, ALPHA, MANABARCOLOR
 E_CMD_PERS_SET_ANGLE = 30; -- INDEX, X, Z
 E_CMD_PERS_SET_COUNT = 31; -- INDEX, COUNT
+E_CMD_TRIBE_SET_DISPLAY_WI_PARAMS = 32; -- PN, PERS_COLOR, ALPHA
 
 
 -- table execution for commands
@@ -947,13 +959,13 @@ local E_FUNC_TABLE_EXECUTE =
   [23] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); Camera.setCoords(e_cache_c3d); Camera.setAngle(data[3]); end,
   [24] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; trigger_trigger_thing_at_map_pos(e_cache_map.Pos); end,
   [25] = function(e, data) for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then set_person_new_state(t, data[2]); end end end,
-  [26] = function(e, data) Skin(data[1], data[2]); end,
+  [26] = function(e, data) e.Skins[data[1] + 1][1] = data[2]; e.Skins[data[1] + 1][2] = data[3]; e.Skins[data[1] + 1][3] = data[4]; Mods.setBadgeDrawAs(data[1], data[5]); Mods.setBadgeBeta(data[1], data[6]); end,
   [27] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); FoW.Cover(e_cache_c3d, data[3], data[4]); end,
   [28] = function(e, data) e_cache_map.XZ.X = data[1]; e_cache_map.XZ.Z = data[2]; map_idx_to_world_coord3d(e_cache_map.Pos, e_cache_c3d); FoW.Uncover(e_cache_c3d, data[4], data[3]); end,
-  [29] = function(e, data) Mods.setBetaTribe(data[1], data[2]); Mods.setBadgeBeta(data[1], data[2]); end,
+  [29] = function(e, data) e_cache_pi[data[1] + 1].Colour = data[2]; e_cache_pi[data[1] + 1].LiteColour = data[3]; e_cache_pi[data[1] + 1].DarkColour = data[4]; e_cache_pi[data[1] + 1].Alpha = data[5]; e_cache_pi[data[1] + 1].ManaBarClr = data[6]; end,
   [30] = function(e, data) e_cache_map.XZ.X = data[2]; e_cache_map.XZ.Z = data[3]; map_idx_to_world_coord2d(e_cache_map.Pos, e_cache_c2d); for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then t.Move.CurrAngleXZ = get_angle_xz(t.Pos.D2, e_cache_c2d); t.AngleXZ = get_angle_xz(t.Pos.D2, e_cache_c2d); end end end,
   [31] = function(e, data) for i,t in ipairs(e.ThingBuffers[data[1]]) do if (t.Type == T_PERSON) then t.u.Pers.Count = data[2]; end end end,
-  [32] = function(e, data) end,
+  [32] = function(e, data) e_cache_wi[data[1] + 1].Person = data[2]; e_cache_wi[data[1] + 1].Alpha = data[2]; end,
 };
 
 
@@ -1095,6 +1107,16 @@ end
 
 function e_get_var(_idx)
   return Engine.Variables[_idx];
+end
+
+function e_handle_OnThing(t)
+  -- mainly for skins...
+  if (t.Type == T_PERSON or t.Type == T_BUILDING) then
+    e_cache_ti = THING_PTR_2_THINGSINFO_PTR(t);
+    e_cache_ti.DrawAsTribe = Engine.Skins[t.Owner + 1][1];
+    set_object_hspr_bank(t, Engine.Skins[t.Owner + 1][2]);
+    set_object_blocks_bank(t, Engine.Skins[t.Owner + 1][3]);
+  end
 end
 
 function e_debug_keys_handle(k)
